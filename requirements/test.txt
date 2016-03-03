@@ -1,0 +1,12 @@
+# Install requirements for testing
+# This is used for development and for Travis CI
+
+# Production requirements
+-r requirements/prod.txt
+
+# Testing
+nose
+coverage
+coveralls
+flask-testing
+factory-boy

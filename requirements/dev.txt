@@ -1,0 +1,6 @@
+
+# Requirements for local development & provisioning
+-r test.txt
+
+# provisioning & deployment
+awscli==1.10.7
