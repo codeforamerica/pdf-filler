@@ -26,7 +26,12 @@ This was made by @bengolder at @CodeForAmerica, with guidance and knowledge glea
 
 ### Dependencies
 
+This is a Python app written using Flask.
+Currently it depends on too many Python libraries and unnecessarily depends on PostgreSQL.
+
 ### Installation
+
+    pip install -r requirements.txt
 
 ### Deployment
 
