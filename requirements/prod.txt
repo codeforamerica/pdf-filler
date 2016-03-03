@@ -19,3 +19,4 @@ gunicorn==19.4.5
 
 # Utilities
 python-slugify==1.2.0
+honcho==0.6.6
