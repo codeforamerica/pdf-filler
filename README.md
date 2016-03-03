@@ -31,7 +31,11 @@ Currently it depends on too many Python libraries and unnecessarily depends on P
 
 ### Installation
 
-    pip install -r requirements.txt
+    make install
+
+### Running
+
+    make run
 
 ### Deployment
 
