@@ -13,10 +13,6 @@ Flask-Migrate==1.8.0
 flask-marshmallow==0.6.2
 marshmallow-sqlalchemy==0.8.1
 
-# server
-https://github.com/benoitc/gaffer/archive/master.zip
-gunicorn==19.4.5
-
 # Utilities
 python-slugify==1.2.0
 honcho==0.6.6
