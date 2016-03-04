@@ -1,9 +1,1 @@
-# This only installs the production requirements by default
--r requirements/prod.txt
-
-# This is the requirements inehritance tree
-#  
-# requirements/
-#   └── prod.txt (essentials for all installations)
-#       └── test.txt (prod + testing requirements)
-#           └── dev.txt  (test + deployment)
+-r requirements/dev.txt
