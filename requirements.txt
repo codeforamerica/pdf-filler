@@ -1,1 +1,2 @@
+# This only installs the production requirements by default
 -r requirements/dev.txt

@@ -1,7 +1,6 @@
 
 # Requirements needed for any installation
 
-
 Flask==0.10.1
 
 # database

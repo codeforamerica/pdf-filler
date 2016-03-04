@@ -2,7 +2,7 @@
 # This is used for development and for Travis CI
 
 # Production requirements
--r requirements/prod.txt
+-r ./prod.txt
 
 # Testing
 nose
