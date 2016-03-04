@@ -1,6 +1,12 @@
+# Install requirements for testing
+# This is used for development and for Travis CI
 
-# Requirements for local development & provisioning
--r test.txt
+# Production requirements
+-r ./prod.txt
 
-# provisioning & deployment
-awscli==1.10.7
+# Testing
+nose
+coverage
+coveralls
+flask-testing
+factory-boy
