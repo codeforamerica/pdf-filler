@@ -1,1 +1,1 @@
-web: python src/main.py
+local: PYTHONUNBUFFERED=true python manage.py server

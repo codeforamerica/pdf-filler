@@ -33,20 +33,11 @@ Currently it depends on too many Python libraries and unnecessarily depends on P
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
-    pyvenv-3.5 .
+    python3.5 -m venv .
     source bin/activate
     make install
 
 ### Running
-
-Before running, make sure you add the following to your `.bashrc` or `.zshrc`.  Be sure to replace `~/Path/To/pdfhook` with your path.  You can get it by running `pwd` in the `pdfhook` directory.
-
-```bash
-export PYTHONPATH=~/Path/To/pdfhook
-```
-
-Then you can run
-
 
     make run
 
