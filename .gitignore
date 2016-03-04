@@ -1,3 +1,9 @@
+# virtualenv
+bin
+lib
+pip-selfcheck.json
+pyvenv.cfg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
