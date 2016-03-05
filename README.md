@@ -33,8 +33,13 @@ Currently it depends on too many Python libraries and unnecessarily depends on P
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
+    Install homebrew: http://brew.sh/
+    install python3.5: $ brew install python 3
+    check that it's installed $ python3 --version
     python3.5 -m venv .
     source bin/activate
+    Install postgres: http://postgresapp.com/
+    Add postgres to path: $ export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/9.4/bin
     make install
 
 ### Running
