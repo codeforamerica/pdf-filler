@@ -1,0 +1,20 @@
+# Config file for automatic testing at travis-ci.org
+language: python
+sudo: required
+dist: trusty
+python:
+  - "3.4"
+  - "3.5"
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install pdftk -y
+install: make install
+script: make test
+addons:
+  postgresql: "9.4"
+env:
+  - TEST_DATABASE_URL="postgresql+psycopg2://postgres@localhost/test_pdfhook"
+before_script:
+  - psql -c 'create database test_pdfhook;' -U postgres
+after_success:
+  - coveralls
