@@ -29,9 +29,11 @@ This was made by @bengolder at @CodeForAmerica, with guidance and knowledge glea
 This is a Python app written using Flask.
 Currently it depends on too many Python libraries and unnecessarily depends on PostgreSQL.
 
+This application depends on a command line utility called [`pdftk` server](https://www.pdflabs.com/docs/pdftk-man-page/),  by [PDF Labs](https://www.pdflabs.com/), offered under a [GPL License](https://www.pdflabs.com/docs/pdftk-license/).
+
 ### Installation
 
-Install pdftk here: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg
+If you are running OS X El Capitan install pdftk server here: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
