@@ -3,6 +3,7 @@ from pprint import pprint
 from flask import url_for
 import requests
 import json
+import glob
 from tests.test_base import BaseTestCase
 
 
@@ -55,6 +56,9 @@ class TestPDFHook(BaseTestCase):
             results.pop('added_on')
             self.maxDiff = None
             self.assertDictEqual(results, results_sample)
+            self.assertEqual(glob.glob('data/tmp*'), [])
+            self.assertEqual(glob.glob('data/filled*'), [])
+
 
     def test_fill_pdf(self):
         # TODO: Setting checkboxes still doesn't do anything
@@ -84,5 +88,6 @@ class TestPDFHook(BaseTestCase):
         results = response.data.decode('utf-8')
         self.assertIn('filled', results)
         self.assertIn('.pdf', results)
-
+        self.assertEqual(glob.glob('data/tmp*'), [])
+        self.assertEqual(glob.glob('data/filled*'), [])
 
