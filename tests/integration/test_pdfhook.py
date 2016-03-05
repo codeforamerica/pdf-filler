@@ -10,14 +10,14 @@ class TestPDFHook(BaseTestCase):
 
     def setUp(self):
         BaseTestCase.setUp(self)
-        self.pdf_file = 'data/sample_pdfs/General_Petition_Form-form.pdf'
+        self.pdf_file = 'data/sample_pdfs/Form fields sample.pdf'
 
     def test_pdf_upload(self):
         results_sample = {
             'id': 1,
             'url': 'http://localhost:9000/pdfhook/1/',
             'added_on': '2016-01-10T18:35:42.653853+00:00',
-            'original_pdf_title': 'General_Petition_Form-form.pdf',
+            'original_pdf_title': 'Form fields sample.pdf',
             'latest_post': None,
             'post_count': 0,
             'fields': {
@@ -44,7 +44,6 @@ class TestPDFHook(BaseTestCase):
                 'telephone-number': 'Text'}
         }
         with open(self.pdf_file, 'rb') as f:
-            files = {'file': f}
             response = self.client.post(
                 url_for('pdfhook.post_pdf'),
                 data={'file':f}

@@ -3,3 +3,6 @@ install:
 
 run:
 	honcho start local
+
+test:
+	nosetests tests/
