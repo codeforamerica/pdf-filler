@@ -26,28 +26,43 @@ This was made by @bengolder at @CodeForAmerica, with guidance and knowledge glea
 
 ### Dependencies
 
-This is a Python app written using Flask.
+This is a [Python 3](https://docs.python.org/3/) app written using [Flask](http://flask.pocoo.org/). It assumes that you are installing it on a unix operating system. TIt has only been tested on Ubuntu 14.04 (via Travis CI) and OS X 10.11
 Currently it depends on too many Python libraries and unnecessarily depends on PostgreSQL.
 
 This application depends on a command line utility called [`pdftk` server](https://www.pdflabs.com/docs/pdftk-man-page/),  by [PDF Labs](https://www.pdflabs.com/), offered under a [GPL License](https://www.pdflabs.com/docs/pdftk-license/).
 
 ### Installation
 
-If you are running OS X El Capitan install pdftk server here: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg
+If you are running OS X El Capitan 10.11, install pdftk server here (requires your password for installation):
+https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg
+
+#### Install Python 3.4 or 3.5
+
+If your computer does not have Python 3, you can install it on OS X using [Homebrew](http://brew.sh/)
+
+    brew install python3
+    # check the version
+    python3 --version
+
+
+#### Quickstart
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
-    Install homebrew: http://brew.sh/
-    install python3.5: $ brew install python 3
-    check that it's installed $ python3 --version
-    python3.5 -m venv .
+    python3.5 -m venv .  # create the virtual environment
     source bin/activate
     Install postgres: http://postgresapp.com/
     Add postgres to path: $ export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/9.4/bin
     make install
 
-### Running
+### Running the local server
 
     make run
 
+### Tests
+
+    make test
+    
 ### Deployment
+
+_not yet implemented_
