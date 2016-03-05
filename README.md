@@ -14,7 +14,7 @@ This code repository is currently a non-functional shell. Code will be added soo
 
 ### Why
 
-This app idea originated from a common need to automatically fill PDF forms in various Code for America projects. Filling PDFs is an all-too-common need for many government and institutional services, and automatically populating forms can be a useful step in redesigning those services to better serve clients. 
+This app idea originated from a common need to automatically fill PDF forms in various Code for America projects. Filling PDFs is an all-too-common need for many government and institutional services, and automatically populating forms can be a useful step in redesigning those services to better serve clients.
 
 After [an initial proof-of-concept in another project](https://github.com/codeforamerica/typeseam/pull/25), I decided to spin this off into a separate code app.
 
@@ -47,7 +47,3 @@ Currently it depends on too many Python libraries and unnecessarily depends on P
     make run
 
 ### Deployment
-
-
-
-
