@@ -14,7 +14,7 @@ This code repository is currently a non-functional shell. Code will be added soo
 
 ### Why
 
-This app idea originated from a common need to automatically fill PDF forms in various Code for America projects. Filling PDFs is an all-too-common need for many government and institutional services, and automatically populating forms can be a useful step in redesigning those services to better serve clients. 
+This app idea originated from a common need to automatically fill PDF forms in various Code for America projects. Filling PDFs is an all-too-common need for many government and institutional services, and automatically populating forms can be a useful step in redesigning those services to better serve clients.
 
 After [an initial proof-of-concept in another project](https://github.com/codeforamerica/typeseam/pull/25), I decided to spin this off into a separate code app.
 
@@ -35,8 +35,13 @@ Install pdftk here: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_se
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
+    Install homebrew: http://brew.sh/
+    install python3.5: $ brew install python 3
+    check that it's installed $ python3 --version
     python3.5 -m venv .
     source bin/activate
+    Install postgres: http://postgresapp.com/
+    Add postgres to path: $ export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/9.4/bin
     make install
 
 ### Running
@@ -44,7 +49,3 @@ Install pdftk here: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_se
     make run
 
 ### Deployment
-
-
-
-
