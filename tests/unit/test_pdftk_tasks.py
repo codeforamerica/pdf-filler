@@ -5,7 +5,7 @@ from unittest import TestCase
 class TestPDFTKTasks(TestCase):
 
     def test_parse_fdf(self):
-        from typeseam.pdfhook.tasks import parse_fdf_fields
+        from src.pdfhook.tasks import parse_fdf_fields
         for name, data in parse_fdf_fields(FDF_STR_SAMPLE):
             self.assertIn('escaped_name', data)
             self.assertIn('name', data)
@@ -15,8 +15,8 @@ class TestPDFTKTasks(TestCase):
             self.assertEqual(name, data['escaped_name'])
 
     def test_parse_pdf(self):
-        from typeseam.pdfhook.tasks import build_fdf_map
-        path = 'data/tmp-General_Petition_Form-form.pdf'
+        from src.pdfhook.tasks import build_fdf_map
+        path = 'data/tmp-Form fields sample.pdf'
         fields = build_fdf_map(path)
         for name, data in fields.items():
             self.assertIn('slug', data)

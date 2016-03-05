@@ -2,7 +2,7 @@
 import os
 from flask.ext.testing import TestCase as FlaskTestCase
 
-from typeseam.app import (
+from src.main import (
     create_app as _create_app,
     db
     )
@@ -13,7 +13,7 @@ class BaseTestCase(FlaskTestCase):
     A base test case that boots our app
     '''
     def create_app(self):
-        os.environ['CONFIG'] = 'typeseam.settings.TestConfig'
+        os.environ['CONFIG'] = 'src.settings.TestConfig'
         app = _create_app()
         app.testing = True
         return app
