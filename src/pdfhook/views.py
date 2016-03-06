@@ -6,9 +6,10 @@ from src.pdfhook import (
     tasks,
     queries,
     serializers
-    )
+)
 
-pdf_serializer = serializers.PDFFormSerializer()
+pdf_dumper = serializers.PDFFormDumper()
+pdf_loader = serializers.PDFFormLoader()
 
 @blueprint.after_request
 def cleanup_files(response):
@@ -26,7 +27,9 @@ def post_pdf():
     # get pdf
     if not request.files:
         abort(404)
+    # what should it do if it receives no files?
     file_storage = request.files['file']
+    # here it should pass the
     filename = os.path.basename(file_storage.filename)
     temp_pdf_path = os.path.join(
         tasks.TEMP_FOLDER_PATH, 'tmp-' + filename)
@@ -34,12 +37,14 @@ def post_pdf():
     with open(temp_pdf_path, 'wb') as temp_pdf:
         temp_pdf.write(raw_pdf_data)
     field_definitions = tasks.build_fdf_map(temp_pdf_path)
-    pdf = queries.create_pdf_form(
+    pdf, errors = pdf_loader.load(dict(
         original_pdf_title=filename,
-        original_pdf=raw_pdf_data,
         fdf_mapping=field_definitions
-        )
-    return jsonify(pdf_serializer.dump(pdf).data)
+        ))
+    pdf.original_pdf = raw_pdf_data
+    db.session.add(pdf)
+    db.session.commit()
+    return jsonify(pdf_dumper.dump(pdf).data)
 
 
 @blueprint.route('/<int:pdf_id>/', methods=['POST'])

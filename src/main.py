@@ -4,6 +4,7 @@ from flask import Flask
 from src.extensions import db, ma, migrate
 from src.context_processors import inject_static_url
 from src.logs import register_logging
+from src.pdfhook import blueprint
 
 from flask import jsonify, make_response
 from flask import render_template
@@ -26,12 +27,10 @@ def register_extensions(app):
     ma.init_app(app)
 
 def register_blueprints(app):
-    from src.pdfhook import blueprint as pdfhook
-    app.register_blueprint(pdfhook)
+    app.register_blueprint(blueprint)
 
 def register_context_processors(app):
     app.context_processor(inject_static_url)
-
 
 
 if __name__ == '__main__':

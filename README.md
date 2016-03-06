@@ -27,7 +27,7 @@ This was made by @bengolder at @CodeForAmerica, with guidance and knowledge glea
 ### Dependencies
 
 This is a [Python 3](https://docs.python.org/3/) app written using [Flask](http://flask.pocoo.org/). It assumes that you are installing it on a unix operating system. TIt has only been tested on Ubuntu 14.04 (via Travis CI) and OS X 10.11
-Currently it depends on too many Python libraries and unnecessarily depends on PostgreSQL.
+Currently it depends on too many Python libraries.
 
 This application depends on a command line utility called [`pdftk` server](https://www.pdflabs.com/docs/pdftk-man-page/),  by [PDF Labs](https://www.pdflabs.com/), offered under a [GPL License](https://www.pdflabs.com/docs/pdftk-license/).
 
@@ -62,7 +62,7 @@ If your computer does not have Python 3, you can install it on OS X using [Homeb
 ### Tests
 
     make test
-    
+
 ### Deployment
 
 _not yet implemented_

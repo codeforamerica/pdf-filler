@@ -26,6 +26,7 @@ lib64/
 parts/
 sdist/
 var/
+man/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -68,3 +69,6 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+#Databases
+*.db
