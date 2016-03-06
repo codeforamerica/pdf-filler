@@ -4,13 +4,10 @@
 Flask==0.10.1
 
 # database
-Flask-SQLAlchemy==2.1
-psycopg2==2.6.1
 Flask-Migrate==1.8.0
 
 # serialization
 flask-marshmallow==0.6.2
-marshmallow-sqlalchemy==0.8.1
 
 # Utilities
 python-slugify==1.2.0

@@ -6,8 +6,7 @@ from src.pdfhook import (
     tasks,
     queries,
     serializers
-    )
-
+)
 
 pdf_serializer = serializers.PDFFormSerializer()
 

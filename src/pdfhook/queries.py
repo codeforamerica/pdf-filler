@@ -3,10 +3,8 @@ from src.pdfhook.models import PDFForm
 
 
 def create_pdf_form(**kwargs):
-    pdf = PDFForm(**kwargs)
-    db.session.add(pdf)
-    db.session.commit()
+    pdf = PDFForm.create(**kwargs)
     return pdf
 
 def get_pdf(id):
-    return db.session.query(PDFForm).filter(PDFForm.id==id).first()
+    return PDFForm.select().where(PDFForm.id==id)

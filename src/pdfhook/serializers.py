@@ -8,7 +8,7 @@ from src.pdfhook.models import PDFForm
 def generate_pdf_post_url(pdf):
     return url_for('pdfhook.fill_pdf', _external=True, pdf_id=pdf.id)
 
-class PDFFormSerializer(ma.ModelSchema):
+class PDFFormSerializer(ma.Schema):
     url = fields.Function(lambda pdf: generate_pdf_post_url(pdf))
 
     @post_dump
