@@ -5,7 +5,6 @@ from src.extensions import db, ma, migrate
 from src.context_processors import inject_static_url
 from src.logs import register_logging
 from src.pdfhook import blueprint
-from src.pdfhook.models import create_tables
 
 from flask import jsonify, make_response
 from flask import render_template
@@ -23,7 +22,8 @@ def create_app():
     return app
 
 def register_extensions(app):
-    create_tables()
+    db.init_app(app)
+    migrate.init_app(app, db)
     ma.init_app(app)
 
 def register_blueprints(app):

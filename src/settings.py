@@ -8,6 +8,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
     SQLITE_DATABASE_URI = os.environ.get('DATABASE_URL', 'default.db')
     SERVER_NAME = os.environ.get('HOST_NAME', 'localhost:5000')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class ProdConfig(Config):

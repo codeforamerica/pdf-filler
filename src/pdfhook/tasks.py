@@ -3,6 +3,7 @@ import io
 import os
 import codecs
 import re
+import json
 
 from slugify import slugify
 
@@ -141,7 +142,7 @@ def fill_pdf(pdf, data):
     with open(temp_pdf_path, 'wb') as temp_pdf:
         temp_pdf.write(pdf.original_pdf)
     fdf_str = generate_fdf(temp_pdf_path)
-    fdf_str = fill_fdf(fdf_str, pdf.fdf_mapping, data)
+    fdf_str = fill_fdf(fdf_str, json.loads(pdf.fdf_mapping), data)
     fdf_path = os.path.join(TEMP_FOLDER_PATH, 'tmp-data.fdf')
     with open(fdf_path, 'wb') as fdf_file:
         fdf_file.write(fdf_str.encode(DEFAULT_ENCODING))

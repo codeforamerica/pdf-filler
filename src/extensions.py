@@ -1,5 +1,5 @@
-from peewee import SqliteDatabase
-db = SqliteDatabase('my_default.db')
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 
 from flask_marshmallow import Marshmallow
 ma = Marshmallow()

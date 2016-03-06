@@ -44,7 +44,6 @@ class TestPDFHook(BaseTestCase):
                 data={'file':f}
                 )
             results = json.loads(response.data.decode('utf-8'))
-            print(results)
             self.assertIn('id', results)
             self.assertEqual(
                 results['url'], url_for(
