@@ -8,7 +8,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(HERE, os.pardir))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://localhost/')
     SERVER_NAME = os.environ.get('HOST_NAME', 'localhost:5000')
 
 
