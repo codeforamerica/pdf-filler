@@ -26,3 +26,9 @@ input[readonly] {
   -webkit-filter: grayscale(100%) contrast(150%); /* Chrome, Safari, Opera */
           filter: grayscale(100%) contrast(150%);
 }
+
+.footer p {
+  text-align: right;
+  color: gray;
+  font-style: italic;
+}
