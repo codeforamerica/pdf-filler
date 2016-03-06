@@ -26,7 +26,3 @@ input[readonly] {
   -webkit-filter: grayscale(100%) contrast(150%); /* Chrome, Safari, Opera */
           filter: grayscale(100%) contrast(150%);
 }
-
-.footer a {
-
-}
