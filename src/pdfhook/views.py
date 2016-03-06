@@ -8,7 +8,6 @@ from src.pdfhook import (
     serializers
     )
 
-
 pdf_serializer = serializers.PDFFormSerializer()
 
 @blueprint.after_request
@@ -16,6 +15,11 @@ def cleanup_files(response):
     [os.remove(filename) for filename in glob.glob('./data/tmp*')]
     [os.remove(filename) for filename in glob.glob('./data/filled*')]
     return response
+
+# Index page for uploading pdf
+@blueprint.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():

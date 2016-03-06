@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+
+  <head>
+    <title>Sample PDFHook</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/pdfhook.css') }}" rel="stylesheet">
+  </head>
+
+  <body>
+    <main>
+      <div class="container">
+        {% block body %}{% endblock %}
+      </div>
+    </main>
+    <script src="http://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    {% block code %}{% endblock %}
+  </body>
+  <footer class="footer">
+        <div class="container">
+          <div class="pull-right">
+            <p>
+              A project body
+            </p>
+            <img src="http://www.codeforamerica.org/assets/logo.png" alt="Code For America" class="logo"/>
+          </div>
+        </div>
+  </footer>
+</html>
