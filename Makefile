@@ -7,4 +7,7 @@ run:
 test:
 	nosetests tests/ \
 		--verbose \
-		--nocapture
+		--nocapture \
+		--with-coverage \
+		--cover-package=./src \
+		--cover-erase
