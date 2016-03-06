@@ -1,5 +1,5 @@
 from flask import request, render_template, jsonify, Response, url_for
-import io, os
+import io, os, glob
 from src.main import db
 from src.pdfhook import (
     blueprint,
@@ -10,6 +10,17 @@ from src.pdfhook import (
 
 pdf_dumper = serializers.PDFFormDumper()
 pdf_loader = serializers.PDFFormLoader()
+
+@blueprint.after_request
+def cleanup_files(response):
+    [os.remove(filename) for filename in glob.glob('./data/tmp*')]
+    [os.remove(filename) for filename in glob.glob('./data/filled*')]
+    return response
+
+# Index page for uploading pdf
+@blueprint.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():
