@@ -1,6 +1,6 @@
 # pdfhook
 
-[![Build Status](https://travis-ci.org/codeforamerica/pdfhook.svg?branch=master)](https://travis-ci.org/codeforamerica/pdfhook)
+[![Build Status](https://travis-ci.org/codeforamerica/pdfhook.svg?branch=master)](https://travis-ci.org/codeforamerica/pdfhook) [![Coverage Status](https://coveralls.io/repos/github/codeforamerica/pdfhook/badge.svg?branch=master)](https://coveralls.io/github/codeforamerica/pdfhook?branch=master)
 
 A Python web application for converting PDF forms into PDF-filling APIs.
 
