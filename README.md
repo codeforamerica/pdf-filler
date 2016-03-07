@@ -29,7 +29,7 @@ Here are the current priorities for development.
 
 This app idea originated from a common need to automatically fill PDF forms in various Code for America projects. Filling PDFs is an all-too-common need for many government and institutional services, and automatically populating forms can be a useful step in redesigning those services to better serve clients.
 
-After [an initial proof-of-concept in another project](https://github.com/codeforamerica/typeseam/pull/25), I decided to spin this off into a separate code app.
+After [an initial proof-of-concept in another project](https://github.com/codeforamerica/typeseam/pull/25), I decided to spin this off into a separate project.
 
 ### Who
 
@@ -37,7 +37,9 @@ This was created by @bengolder at @CodeForAmerica with contributions from: @gaur
 
 ## How to use it
 
-These instructions assume:
+You need to download, install, and run the web app locally. Once the local server is running, you can upload PDFs to create APIs, and then fill those PDFs.
+
+The following instructions assume:
 * You are using a unix-based operating system, such as OS X or Linux
 * You are comfortable on [the command line](https://github.com/codeforamerica/howto/blob/master/Shell.md)
 * Your computer has [essential build tools installed](https://github.com/codeforamerica/howto/blob/master/Build-Tools.md)
@@ -46,8 +48,7 @@ These instructions assume:
 
 ### Dependencies
 
-This is a [Python 3](https://docs.python.org/3/) app written using [Flask](http://flask.pocoo.org/). It assumes that you are installing it on a unix operating system. It has only been tested on Ubuntu 14.04 (via Travis CI) and OS X 10.11
-Currently it depends on too many Python libraries.
+This is a [Python 3](https://docs.python.org/3/) app written using [Flask](http://flask.pocoo.org/). It has only been tested on Ubuntu 14.04 (via Travis CI) and OS X 10.11
 
 This application depends on a command line utility called [`pdftk` server](https://www.pdflabs.com/docs/pdftk-man-page/),  by [PDF Labs](https://www.pdflabs.com/), offered under a [GPL License](https://www.pdflabs.com/docs/pdftk-license/).
 
@@ -65,7 +66,7 @@ If your computer does not have Python 3, you can install it on OS X using [Homeb
     python3 --version
 
 
-#### Quickstart
+#### Download and install the source code
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
@@ -73,17 +74,17 @@ If your computer does not have Python 3, you can install it on OS X using [Homeb
     source bin/activate
     make install
 
-### Setting up the database
-    
-    You do not need to set up a database, but you can create a custom one if you like. By default, the application will create and use an SQLite database. It only uses one database table. Upon the first request it checks if that table has been created. If not, it will create it before processing the request.
-    
-### Running the local server
+#### Setting up the database
+
+You do not need to set up a database, but you can create [a custom one if you like](https://github.com/codeforamerica/pdfhook/blob/master/src/settings.py#L11). By default, the application will create and use an SQLite database. It only uses one database table. Upon the first request it checks if that table has been created. If not, it will [create a table](https://github.com/codeforamerica/pdfhook/blob/master/src/pdfhook/views.py#L18-L26) before processing the request.
+
+#### Running the local server
 
     make run
 
-Visit http://localhost:5000/ to see the demo page or any software of your choice to [post a PDF form to the same URL](https://github.com/codeforamerica/pdfhook/blob/master/tests/integration/test_sample_pdfhook.py#L42-L47).
+Visit [http://localhost:5000/](http://localhost:5000/) to see the demo page. Use the API to [post a PDF form to the same URL](https://github.com/codeforamerica/pdfhook/blob/master/tests/integration/test_sample_pdfhook.py#L42-L47).
 
-### Tests
+#### Tests
 
     make test
     # or if you'd like to run specific tests
