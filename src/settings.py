@@ -3,10 +3,12 @@ import os
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(HERE, os.pardir))
+DEFAULT_DATABASE_PATH = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'data', 'default.db')
+DEFAULT_TEST_DATABASE_PATH = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'data', 'test_default.db')
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
-    SQLITE_DATABASE_URI = os.environ.get('DATABASE_URL', 'default.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', DEFAULT_DATABASE_PATH)
     SERVER_NAME = os.environ.get('HOST_NAME', 'localhost:5000')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -23,10 +25,6 @@ class DevConfig(Config):
 
 
 class TestConfig(Config):
-    SQLITE_DATABASE_URI = os.environ.get('TEST_DATABASE_URL', 'default.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL', DEFAULT_TEST_DATABASE_PATH)
     TESTING = True
     DEBUG = True
-    # For: `nose.proxy.AssertionError: Popped wrong request context.`
-    # http://stackoverflow.com/a/28139033/399726
-    # https://github.com/jarus/flask-testing/issues/21
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
