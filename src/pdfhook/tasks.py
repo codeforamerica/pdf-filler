@@ -113,7 +113,7 @@ def fill_fdf(fdf_str, mapping, data):
             elif field['type'] == 'Button':
                 span = field['value_template_span']
                 start = span[0] + 1
-                end = span[1] - 1
+                end = span[1]
                 if end < start:
                     end = start
                 value = data[key]
