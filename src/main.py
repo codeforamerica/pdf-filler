@@ -1,7 +1,7 @@
 
 import os
 from flask import Flask
-from src.extensions import db, ma, migrate
+from src.extensions import db, ma
 from src.context_processors import inject_static_url
 from src.logs import register_logging
 from src.pdfhook import blueprint
@@ -23,7 +23,6 @@ def create_app():
 
 def register_extensions(app):
     db.init_app(app)
-    migrate.init_app(app, db)
     ma.init_app(app)
 
 def register_blueprints(app):
