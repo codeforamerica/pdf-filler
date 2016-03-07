@@ -1,3 +1,5 @@
+TEST_SCOPE=tests/
+
 install:
 	pip install -r requirements.txt
 
@@ -5,7 +7,7 @@ run:
 	honcho start local
 
 test:
-	nosetests tests/ \
+	nosetests $(TEST_SCOPE) \
 		--verbose \
 		--nocapture \
 		--with-coverage \
