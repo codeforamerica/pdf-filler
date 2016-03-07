@@ -1,15 +1,29 @@
-from flask import request, render_template, jsonify, Response, url_for
+from flask import (
+    request, render_template, jsonify, Response, url_for,
+    current_app)
+from sqlalchemy.engine.reflection import Inspector
 import io, os, glob
 from src.main import db
 from src.pdfhook import (
     blueprint,
     tasks,
     queries,
-    serializers
+    serializers,
+    models
 )
 
 pdf_dumper = serializers.PDFFormDumper()
 pdf_loader = serializers.PDFFormLoader()
+
+@blueprint.before_app_first_request
+def make_sure_there_is_a_working_database(*args, **kwargs):
+    inspector = Inspector.from_engine(db.engine)
+    tables = inspector.get_table_names()
+    required_tables = [models.PDFForm.__tablename__]
+    if not (set(required_tables) < set(tables)):
+        current_app.logger.warning(
+            "database tables {} not found. Creating tables".format(required_tables))
+        db.create_all()
 
 @blueprint.after_request
 def cleanup_files(response):
