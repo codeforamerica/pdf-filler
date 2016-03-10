@@ -1,6 +1,6 @@
 from flask import (
     request, render_template, jsonify, Response, url_for,
-    current_app)
+    current_app, send_file)
 from sqlalchemy.engine.reflection import Inspector
 import io, os, glob
 from src.main import db
@@ -11,6 +11,7 @@ from src.pdfhook import (
     serializers,
     models
 )
+from src.settings import PROJECT_ROOT
 
 pdf_dumper = serializers.PDFFormDumper()
 pdf_loader = serializers.PDFFormLoader()
@@ -65,5 +66,5 @@ def post_pdf():
 def fill_pdf(pdf_id):
     pdf = queries.get_pdf(id=pdf_id)
     data = request.get_json()
-    results = tasks.fill_pdf(pdf, data)
-    return Response(results)
+    filename = tasks.fill_pdf(pdf, data)
+    return send_file(os.path.join(PROJECT_ROOT, filename), mimetype='application/pdf')
