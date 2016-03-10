@@ -84,9 +84,11 @@ class TestPDFHook(BaseTestCase):
             headers={'Content-Type': 'application/json'},
             data=json.dumps(post_data)
             )
-        results = response.data.decode('utf-8')
-        self.assertIn('filled', results)
-        self.assertIn('.pdf', results)
+        results = response.data
+        with open('data/sample_pdfs/filled-sample_form.pdf', 'rb') as filled_file:
+            filled_pdf = filled_file.read()
+            self.assertEqual(filled_pdf, results)
+
         self.assertEqual(glob.glob('data/tmp*'), [])
         self.assertEqual(glob.glob('data/filled*'), [])
 
