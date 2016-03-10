@@ -1,6 +1,8 @@
 
+import os
 from pprint import pprint
 from flask import url_for
+from unittest.mock import patch
 import requests
 import json
 import glob
@@ -58,8 +60,8 @@ class TestPDFHook(BaseTestCase):
             self.assertEqual(glob.glob('data/tmp*'), [])
             self.assertEqual(glob.glob('data/filled*'), [])
 
-
-    def test_fill_pdf(self):
+    @patch('src.pdfhook.tasks.fill_pdf')
+    def test_fill_pdf(self, fill_pdf):
         # TODO: Setting checkboxes still doesn't do anything
         post_data = {
             'given-name-text-box': 'Gaurav',
@@ -71,6 +73,11 @@ class TestPDFHook(BaseTestCase):
             'driving-license-check-box': True,
             'language-2-check-box': True,
         }
+        test_file_content = b'some_binary_data'
+        test_file_path = 'test_path.pdf'
+        with open(test_file_path, 'wb') as f:
+            f.write(test_file_content)
+        fill_pdf.return_value = test_file_path
         # first we need a pdf loaded
         with open(self.pdf_file, 'rb') as f:
             files = {'file': f}
@@ -85,9 +92,8 @@ class TestPDFHook(BaseTestCase):
             data=json.dumps(post_data)
             )
         results = response.data
-        with open('data/sample_pdfs/filled-sample_form.pdf', 'rb') as filled_file:
-            filled_pdf = filled_file.read()
-            self.assertEqual(filled_pdf, results)
+        self.assertEqual(test_file_content, results)
+        os.remove(test_file_path)
 
         self.assertEqual(glob.glob('data/tmp*'), [])
         self.assertEqual(glob.glob('data/filled*'), [])
