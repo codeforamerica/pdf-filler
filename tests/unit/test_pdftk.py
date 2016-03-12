@@ -33,16 +33,6 @@ class TestPDFTK(TestCase):
         contents_getter.assert_called_once_with(
             'tmp_path.fdf', decode=True)
 
-    def test_get_xfdf(self):
-        pdftk = PDFTKWrapper()
-        fp = 'something.pdf'
-        results = pdftk.get_xfdf(fp)
-
-    def test_get_data_fields(self):
-        pdftk = PDFTKWrapper()
-        fp = 'something.pdf'
-        results = pdftk.get_data_fields(fp)
-
     def test_parse_fdf_fields(self):
         pdftk = PDFTKWrapper()
         fdf_sample = """

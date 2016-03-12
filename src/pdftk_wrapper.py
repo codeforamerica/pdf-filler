@@ -50,14 +50,14 @@ class PDFTKWrapper:
             path = self._tmp_files.pop()
             os.remove(path)
 
-    def _get_file_contents(self, path, decode=False):
+    def _get_file_contents(self, path, decode=False, encoding=None):
         """given a file path, return the contents of the file
         if decode is True, the contents will be decoded using the default
         encoding
         """
         bytestring = open(path, 'rb').read()
         if decode:
-            return bytestring.decode(self.encoding)
+            return bytestring.decode(encoding or self.encoding)
         return bytestring
 
     def get_fdf(self, fp):
@@ -68,14 +68,18 @@ class PDFTKWrapper:
         tmp_outfile = self._write_tmp_file()
         self.run_command([fp, 'generate_fdf',
             'output', tmp_outfile])
-        return self._get_file_contents(
+        contents = self._get_file_contents(
             tmp_outfile, decode=True)
-
-    def get_xfdf(self, fp):
-        return None
+        return contents
 
     def get_data_fields(self, fp):
-        return None
+        fp = self._coerce_to_file_path(fp)
+        tmp_outfile = self._write_tmp_file()
+        self.run_command([fp, 'dump_data_fields_utf8',
+            'output', tmp_outfile])
+        contents = self._get_file_contents(
+            tmp_outfile, decode=True, encoding='utf-8')
+        return contents
 
     def parse_fdf_fields(self, fdf_str):
         yield None
