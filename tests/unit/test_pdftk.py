@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from pdftk_wrapper import PDFTKWrapper, PdftkError
+from src.pdftk_wrapper import PDFTKWrapper, PdftkError
 
 class TestPDFTK(TestCase):
 
@@ -16,8 +16,22 @@ class TestPDFTK(TestCase):
 
     def test_get_fdf(self):
         pdftk = PDFTKWrapper()
-        fp = 'something.pdf'
-        results = pdftk.get_fdf(fp)
+        coercer = Mock(return_value='path.pdf')
+        pdftk._coerce_to_file_path = coercer
+        writer = Mock(return_value='tmp_path.fdf')
+        pdftk._write_tmp_file = writer
+        runner = Mock()
+        pdftk.run_command = runner
+        contents_getter = Mock()
+        pdftk._get_file_contents = contents_getter
+        results = pdftk.get_fdf('something.pdf')
+        coercer.assert_called_once_with('something.pdf')
+        writer.assert_called_once_with()
+        runner.assert_called_once_with([
+            'path.pdf', 'generate_fdf',
+            'output', 'tmp_path.fdf'])
+        contents_getter.assert_called_once_with(
+            'tmp_path.fdf', decode=True)
 
     def test_get_xfdf(self):
         pdftk = PDFTKWrapper()
@@ -50,7 +64,7 @@ class TestPDFTK(TestCase):
         """
         fields = list(pdftk.parse_data_fields(data_fields_sample))
 
-    @patch('pdftk_wrapper.subprocess')
+    @patch('src.pdftk_wrapper.subprocess')
     def test_run_command(self, subprocess):
         pdftk = PDFTKWrapper()
         comm_err = Mock(return_value=(b'', b'an error'))
@@ -80,12 +94,107 @@ class TestPDFTK(TestCase):
         subprocess.reset_mock()
         subprocess.Popen = popen_bad
         args = ['go']
-        with self.assertRaisesRegex(PdftkError, 'an error'):
+        with self.assertRaises(PdftkError):
             pdftk.run_command(args)
         proc_err.assert_not_called()
         comm_err.assert_called_once_with()
         popen_bad.assert_called_once_with(['pdftk','go'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    @patch('src.pdftk_wrapper.mkstemp')
+    @patch('builtins.open')
+    def test_write_tmp_file(self, open, mkstemp):
+        mkstemp.return_value = ('os.file', 'filepath')
+        mock_file = Mock()
+
+        # check with file_object
+        pdftk = PDFTKWrapper()
+        path = pdftk._write_tmp_file(mock_file)
+        mkstemp.assert_called_once_with(dir=pdftk.TEMP_FOLDER_PATH)
+        open.assert_called_once_with('filepath', 'wb')
+        mock_file.read.assert_called_once_with()
+        self.assertEqual(path, 'filepath')
+        self.assertListEqual(pdftk._tmp_files, ['filepath'])
+
+        # check with bytes
+        pdftk = PDFTKWrapper()
+        mkstemp.reset_mock()
+        open.reset_mock()
+        path = pdftk._write_tmp_file(bytestring=b'content')
+        open.assert_called_once_with('filepath', 'wb')
+        self.assertEqual(path, 'filepath')
+        self.assertListEqual(pdftk._tmp_files, ['filepath'])
+
+
+    @patch('src.pdftk_wrapper.os.remove')
+    def test_clean_up_tmp_files(self, remove):
+        pdftk = PDFTKWrapper()
+        paths = [c for c in 'hello']
+        pdftk._tmp_files = paths
+        pdftk._clean_up_tmp_files()
+        for p in paths:
+            remove.assert_any_call(p)
+        self.assertListEqual(pdftk._tmp_files, [])
+        # test with no files
+        remove.reset_mock()
+        pdftk._clean_up_tmp_files()
+        remove.assert_not_called()
+
+    def test_coerce_to_file_path(self):
+        pdftk = PDFTKWrapper()
+        wrt_tmp = Mock(return_value='path')
+        pdftk._write_tmp_file = wrt_tmp
+
+        # check with a string input
+        result = pdftk._coerce_to_file_path('goodpath')
+        self.assertEqual(result, 'goodpath')
+        wrt_tmp.assert_not_called()
+
+        # check with a bytestring input
+        bstring = b'foo'
+        result = pdftk._coerce_to_file_path(bstring)
+        self.assertEqual(result, 'path')
+        wrt_tmp.assert_called_once_with(bytestring=bstring)
+
+        # check with a not string input
+        wrt_tmp.reset_mock()
+        not_string = Mock()
+        result = pdftk._coerce_to_file_path(not_string)
+        self.assertEqual(result, 'path')
+        wrt_tmp.assert_called_once_with(file_obj=not_string)
+
+    @patch('builtins.open')
+    def test_get_file_contents(self, open):
+        pdftk = PDFTKWrapper(encoding='utf-2000')
+        decoder = Mock(return_value='decoded')
+        # check with no decode
+        mock_bytestring = Mock(decode=decoder)
+        open.return_value.read.return_value = mock_bytestring
+        result = pdftk._get_file_contents('path')
+        self.assertEqual(result, mock_bytestring)
+        open.assert_called_once_with('path', 'rb')
+        decoder.assert_not_called()
+        # check with decode
+        open.reset_mock()
+        open.return_value.read.return_value = mock_bytestring
+        result = pdftk._get_file_contents('path', decode=True)
+        self.assertEqual(result, 'decoded')
+        open.assert_called_once_with('path', 'rb')
+        decoder.assert_called_once_with('utf-2000')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
