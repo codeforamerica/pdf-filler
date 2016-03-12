@@ -27,6 +27,9 @@ class PDFTKWrapper:
     def parse_data_fields(self, data_str):
         yield None
 
+    def generate_fdf_map(self, fp):
+        return None
+
     def run_command(self, args):
         if args[0] != 'pdftk':
             args.insert(0, 'pdftk')
