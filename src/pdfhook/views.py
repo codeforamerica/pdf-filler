@@ -18,6 +18,8 @@ pdf_loader = serializers.PDFFormLoader()
 
 @blueprint.before_app_first_request
 def make_sure_there_is_a_working_database(*args, **kwargs):
+    if current_app.config.get('ENV') != 'dev':
+        return
     inspector = Inspector.from_engine(db.engine)
     tables = inspector.get_table_names()
     required_tables = [models.PDFForm.__tablename__]

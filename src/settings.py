@@ -25,6 +25,7 @@ class DevConfig(Config):
 
 
 class TestConfig(Config):
+    ENV = 'test'
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL', DEFAULT_TEST_DATABASE_PATH)
     TESTING = True
     DEBUG = True
