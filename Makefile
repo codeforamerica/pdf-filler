@@ -13,3 +13,12 @@ test:
 		--with-coverage \
 		--cover-package=./src \
 		--cover-erase
+
+SCOPE=tests/unit
+test.unit:
+	nosetests $(SCOPE) \
+		--verbose \
+		--nocapture \
+		--with-coverage \
+		--cover-package=./src \
+		--cover-erase
