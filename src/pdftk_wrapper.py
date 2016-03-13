@@ -158,6 +158,7 @@ class PDFTKWrapper:
                 raise DuplicateFormFieldError(
                     "Duplicate fdf field: '{}'".format(name))
             fields[name]['fdf'] = datum
+        self.clean_up_tmp_files()
         return fields
 
 

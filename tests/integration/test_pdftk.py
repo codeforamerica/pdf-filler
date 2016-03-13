@@ -11,13 +11,12 @@ from tests.unit.test_pdftk import (
         FIELD_DATA_MAP_SAMPLE
     )
 
-
 class TestPDFTK(TestCase):
 
     def setUp(self):
         TestCase.setUp(self)
         self.tmp_dir = 'data'
-        self.sample_form_path = 'data/sample_pdfs/sample_form.pdf'
+        self.sample_form_path = 'data/sample_pdfs/field_type_survey.pdf'
 
     def test_pdftk_errors(self):
         pdftk = PDFTKWrapper()
