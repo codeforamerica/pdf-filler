@@ -140,7 +140,7 @@ class PDFTKWrapper:
             tmp_outfile, decode=True, encoding='utf-8')
         return contents
 
-    def get_form_field_data(self, fp):
+    def get_full_form_field_data(self, fp):
         # fdf_data & field_data are generators
         fdf_data = self.parse_fdf_fields(self.get_fdf(fp))
         field_data = self.parse_data_fields(self.get_data_fields(fp))
@@ -161,8 +161,24 @@ class PDFTKWrapper:
         self.clean_up_tmp_files()
         return fields
 
-
-
+    def get_field_data(self, fp):
+        full_data = self.get_full_form_field_data(fp)
+        data = []
+        for key in full_data:
+            full_datum = full_data[key]
+            datum = {
+                'name': key,
+                'type': full_datum['FieldType'].lower(),
+            }
+            if 'FieldValue' in full_datum:
+                datum['value'] = full_datum['FieldValue']
+            if 'FieldStateOption' in full_datum:
+                datum['options'] = full_datum['FieldStateOption']
+                if 'value' in datum:
+                    if datum['value'] not in datum['options']:
+                        datum['options'].append(datum['value'])
+            data.append(datum)
+        return sorted(data, key=lambda d: d['name'])
 
 
 

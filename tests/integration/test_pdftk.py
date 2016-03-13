@@ -8,8 +8,10 @@ from src.pdftk_wrapper import (
 from tests.unit.test_pdftk import (
         FDF_STR_SAMPLE,
         DATA_FIELDS_STR_SAMPLE,
-        FIELD_DATA_MAP_SAMPLE
+        FIELD_DATA_MAP_SAMPLE,
+        FIELD_DATA
     )
+
 
 class TestPDFTK(TestCase):
 
@@ -44,10 +46,43 @@ class TestPDFTK(TestCase):
         self.assertEqual(results, DATA_FIELDS_STR_SAMPLE)
         pdftk.clean_up_tmp_files()
 
-    def test_get_form_field_data(self):
+    def test_get_full_form_field_data(self):
         pdftk = PDFTKWrapper()
-        results = pdftk.get_form_field_data(self.sample_form_path)
+        results = pdftk.get_full_form_field_data(self.sample_form_path)
         self.assertDictEqual(results, FIELD_DATA_MAP_SAMPLE)
 
+    def test_get_field_data(self):
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(
+            self.sample_form_path
+            )
+        self.assertListEqual(results, FIELD_DATA)
+
+
+class TestFields(TestCase):
+
+    def setUp(self):
+        self.field_pdfs = {}
+        for field in ['text', 'checkbox', 'radio', 'listbox', 'dropdown']:
+            self.field_pdfs[field] = os.path.join(
+                'data/sample_pdfs/fields', field + '.pdf')
+
+    # def test_fill_checkbox(self):
+    #     path = self.field_pdfs['checkbox']
+    #     pdftk = PDFTKWrapper()
+    #     results = pdftk.get_field_data(path)
+
+
+    # def test_fill_radio(self):
+    #     pass
+
+    # def fill_listbox(self):
+    #     pass
+
+    # def fill_dropdown(self):
+    #     pass
+
+    # def fill_text(self):
+    #     pass
 
 
