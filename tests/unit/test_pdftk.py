@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-
 from src.pdftk_wrapper import PDFTKWrapper, PdftkError
+
 
 class TestPDFTK(TestCase):
 
@@ -32,27 +32,6 @@ class TestPDFTK(TestCase):
             'output', 'tmp_path.fdf'])
         contents_getter.assert_called_once_with(
             'tmp_path.fdf', decode=True)
-
-    def test_parse_fdf_fields(self):
-        pdftk = PDFTKWrapper()
-        fdf_sample = """
-        Something
-        """
-        fields = list(pdftk.parse_fdf_fields(fdf_sample))
-
-    def test_parse_xfdf_fields(self):
-        pdftk = PDFTKWrapper()
-        xfdf_sample = """
-        Something
-        """
-        fields = list(pdftk.parse_xfdf_fields(xfdf_sample))
-
-    def test_parse_data_fields(self):
-        pdftk = PDFTKWrapper()
-        data_fields_sample = """
-        Something
-        """
-        fields = list(pdftk.parse_data_fields(data_fields_sample))
 
     @patch('src.pdftk_wrapper.subprocess')
     def test_run_command(self, subprocess):
@@ -121,13 +100,13 @@ class TestPDFTK(TestCase):
         pdftk = PDFTKWrapper()
         paths = [c for c in 'hello']
         pdftk._tmp_files = paths
-        pdftk._clean_up_tmp_files()
+        pdftk.clean_up_tmp_files()
         for p in paths:
             remove.assert_any_call(p)
         self.assertListEqual(pdftk._tmp_files, [])
         # test with no files
         remove.reset_mock()
-        pdftk._clean_up_tmp_files()
+        pdftk.clean_up_tmp_files()
         remove.assert_not_called()
 
     def test_coerce_to_file_path(self):

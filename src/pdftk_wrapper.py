@@ -1,9 +1,12 @@
 import os
+import re
 import subprocess
 from tempfile import mkstemp
 
+
 class PdftkError(Exception):
     pass
+
 
 class PDFTKWrapper:
 
@@ -43,7 +46,7 @@ class PDFTKWrapper:
         self._tmp_files.append(tmp_fp)
         return tmp_fp
 
-    def _clean_up_tmp_files(self):
+    def clean_up_tmp_files(self):
         if not self._tmp_files:
             return
         for i in range(len(self._tmp_files)):
@@ -82,13 +85,46 @@ class PDFTKWrapper:
         return contents
 
     def parse_fdf_fields(self, fdf_str):
-        yield None
-
-    def parse_xfdf_fields(self, xfdf_str):
-        yield None
+        '''Yields a series of tuples, using the escaped name of the field
+        followed by a dict with useful meta information about the match
+            https://regex101.com/r/iL6hW3/5
+        '''
+        field_pattern = re.compile(r'\/V\ (?P<value>.*)\n\/T\ \((?P<name>.*)\)')
+        for match in re.finditer(field_pattern, fdf_str):
+            # it's necessary to deal with escape slashes in the field name
+            # because it may otherwise fail to match the field name extracted
+            # from the data field dump
+            datum = {
+                'name': match.group('name'),
+                'escaped_name': match.group('name').replace('\\', ''),
+                'name_span': match.span('name'),
+                'value_template': match.group('value'),
+                'value_template_span': match.span('value')
+                }
+            yield (datum['escaped_name'], datum)
 
     def parse_data_fields(self, data_str):
-        yield None
+        '''Pulls out a field name and type from the resulting string of
+            `pdftk dump_data_fields_utf8`
+        Uses the following regex to find types and names:
+            https://regex101.com/r/iL6hW3/4
+        '''
+        field_opts_key = 'FieldStateOption'
+        field_name_key = 'FieldName'
+        for field_text in data_str.split('---'):
+            datum = {}
+            for line in field_text.split('\n'):
+                if line.strip():
+                    propName, value = line.split(':')
+                    if propName == field_opts_key:
+                        if field_opts_key not in datum:
+                            datum[field_opts_key] = [value.strip()]
+                        else:
+                            datum[field_opts_key].append(value.strip())
+                    else:
+                        datum[propName] = value.strip()
+            if datum:
+                yield (datum[field_name_key], datum)
 
     def run_command(self, args):
         if args[0] != 'pdftk':
