@@ -9,7 +9,12 @@ from tests.unit.test_pdftk import (
         FDF_STR_SAMPLE,
         DATA_FIELDS_STR_SAMPLE,
         FIELD_DATA_MAP_SAMPLE,
-        FIELD_DATA
+        FIELD_DATA,
+        CHECKBOX_SAMPLE,
+        RADIO_SAMPLE,
+        LISTBOX_SAMPLE,
+        DROPDOWN_SAMPLE,
+        TEXT_SAMPLE
     )
 
 
@@ -67,22 +72,71 @@ class TestFields(TestCase):
             self.field_pdfs[field] = os.path.join(
                 'data/sample_pdfs/fields', field + '.pdf')
 
-    # def test_fill_checkbox(self):
-    #     path = self.field_pdfs['checkbox']
-    #     pdftk = PDFTKWrapper()
-    #     results = pdftk.get_field_data(path)
+    def test_fill_checkbox(self):
+        path = self.field_pdfs['checkbox']
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(path)
+        self.assertListEqual(results, CHECKBOX_SAMPLE)
+        sample_answers = {
+            'Check Box2': 'Off',
+            'Check Box3': 'Yes'
+        }
+        filled_pdf = pdftk.fill_pdf(path, sample_answers)
+        filled_sample = open(
+            'data/sample_output/fields/checkbox.pdf', 'rb').read()
+        self.assertEqual(filled_pdf, filled_sample)
+
+    def test_fill_radio(self):
+        path = self.field_pdfs['radio']
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(path)
+        self.assertListEqual(results, RADIO_SAMPLE)
+        sample_answers = {
+            'Radio Buttons': 'yellow'
+        }
+        filled_pdf = pdftk.fill_pdf(path, sample_answers)
+        # open('data/sample_output/fields/radio.pdf', 'wb'
+            # ).write(filled_pdf)
+        filled_sample = open(
+            'data/sample_output/fields/radio.pdf', 'rb').read()
+        self.assertEqual(filled_pdf, filled_sample)
 
 
-    # def test_fill_radio(self):
-    #     pass
+    def test_fill_listbox(self):
+        path = self.field_pdfs['listbox']
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(path)
+        self.assertListEqual(results, LISTBOX_SAMPLE)
+        sample_answers = {
+            'List Box1': 'durian'
+        }
+        with self.assertRaises(PdftkError):
+            filled_pdf = pdftk.fill_pdf(path, sample_answers)
 
-    # def fill_listbox(self):
-    #     pass
 
-    # def fill_dropdown(self):
-    #     pass
+    def test_fill_dropdown(self):
+        path = self.field_pdfs['dropdown']
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(path)
+        self.assertListEqual(results, DROPDOWN_SAMPLE)
+        sample_answers = {
+            'Dropdown5': 'river'
+        }
+        with self.assertRaises(PdftkError):
+            filled_pdf = pdftk.fill_pdf(path, sample_answers)
 
-    # def fill_text(self):
-    #     pass
+    def test_fill_text(self):
+        path = self.field_pdfs['text']
+        pdftk = PDFTKWrapper()
+        results = pdftk.get_field_data(path)
+        self.assertListEqual(results, TEXT_SAMPLE)
+        sample_answers = {
+            'multiline': 'So\nmany\nlines',
+            'single': 'Hello pdf world'
+        }
+        filled_pdf = pdftk.fill_pdf(path, sample_answers)
+        filled_sample = open(
+            'data/sample_output/fields/text.pdf', 'rb').read()
+        self.assertEqual(filled_pdf, filled_sample)
 
 

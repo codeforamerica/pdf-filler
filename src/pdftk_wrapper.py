@@ -13,12 +13,17 @@ class DuplicateFormFieldError(Exception):
 class MissingFormFieldError(Exception):
     pass
 
+class InvalidOptionError(Exception):
+    pass
+
 class PDFTKWrapper:
 
     def __init__(self, encoding='latin-1', tmp_path=None):
         self.encoding = encoding
         self.TEMP_FOLDER_PATH = tmp_path
         self._tmp_files = []
+        self._cache_fdf_for_filling = False
+        self._fdf_cache = None
 
     def _coerce_to_file_path(self, path_or_file_or_bytes):
         """This converst file-like objects and `bytes` into
@@ -119,31 +124,35 @@ class PDFTKWrapper:
             if datum:
                 yield (datum[field_name_key], datum)
 
-    def get_fdf(self, fp):
+    def get_fdf(self, pdf_file_path):
         """Given a path to a pdf form, this returns the decoded
         text of an output fdf file
         """
-        fp = self._coerce_to_file_path(fp)
+        pdf_file_path = self._coerce_to_file_path(pdf_file_path)
         tmp_outfile = self._write_tmp_file()
-        self.run_command([fp, 'generate_fdf',
+        self.run_command([pdf_file_path, 'generate_fdf',
             'output', tmp_outfile])
         contents = self._get_file_contents(
             tmp_outfile, decode=True)
+        if self._cache_fdf_for_filling:
+            self._fdf_cache = contents
         return contents
 
-    def get_data_fields(self, fp):
-        fp = self._coerce_to_file_path(fp)
+    def get_data_fields(self, pdf_file_path):
+        pdf_file_path = self._coerce_to_file_path(pdf_file_path)
         tmp_outfile = self._write_tmp_file()
-        self.run_command([fp, 'dump_data_fields_utf8',
+        self.run_command([pdf_file_path, 'dump_data_fields_utf8',
             'output', tmp_outfile])
         contents = self._get_file_contents(
             tmp_outfile, decode=True, encoding='utf-8')
         return contents
 
-    def get_full_form_field_data(self, fp):
+    def get_full_form_field_data(self, pdf_file_path):
         # fdf_data & field_data are generators
-        fdf_data = self.parse_fdf_fields(self.get_fdf(fp))
-        field_data = self.parse_data_fields(self.get_data_fields(fp))
+        fdf_data = self.parse_fdf_fields(
+                        self.get_fdf(pdf_file_path))
+        field_data = self.parse_data_fields(
+                        self.get_data_fields(pdf_file_path))
         fields = {}
         for name, datum in field_data:
             if name in fields:
@@ -161,8 +170,9 @@ class PDFTKWrapper:
         self.clean_up_tmp_files()
         return fields
 
-    def get_field_data(self, fp):
-        full_data = self.get_full_form_field_data(fp)
+    def get_field_data(self, pdf_file_path):
+        full_data = self.get_full_form_field_data(
+                        pdf_file_path)
         data = []
         for key in full_data:
             full_datum = full_data[key]
@@ -179,6 +189,74 @@ class PDFTKWrapper:
                         datum['options'].append(datum['value'])
             data.append(datum)
         return sorted(data, key=lambda d: d['name'])
+
+    def _build_answer_insertion(self, value, field):
+        value = str(value)
+        field_type = field['FieldType'].lower()
+        options = field.get('FieldStateOption', [])
+        if field_type == 'button':
+            span = field['fdf']['value_template_span']
+            start = span[0] + 1
+            end = span[1]
+            if value not in options:
+                raise InvalidOptionError(
+                    "'{}' is not in options for '{}': {}".format(
+                        value,
+                        field['FieldName'], str(options)))
+            return (start, end, value)
+        else: # 'choice' and 'text' types
+            span = field['fdf']['value_template_span']
+            start = span[0] + 1
+            end = span[1] - 1
+            # we could check options here, but that would exclude
+            # custom other values
+            return (start, end, value)
+
+    def _generate_answer_insertions(self, pdf_path, answers):
+        fields = self.get_full_form_field_data(pdf_path)
+        insertions = []
+        for key in answers:
+            if key in fields:
+                insertion = self._build_answer_insertion(
+                    answers[key], fields[key])
+                insertions.append(insertion)
+        insertions.sort(key=lambda i: i[0])
+        return insertions
+
+    def _patch_fdf_with_insertions(self, insertions, fdf_str=None):
+        if not fdf_str:
+            fdf_str = self._fdf_cache
+        fdf = []
+        position = 0
+        for start, end, value in insertions:
+            fdf.append(fdf_str[position:start])
+            fdf.append(value)
+            position = end
+        fdf.append(fdf_str[position:])
+        return ''.join(fdf)
+
+    def _load_patched_fdf_into_pdf(self, pdf_file_path, fdf_str):
+        filled_fdf_path = self._write_tmp_file(
+            bytestring=fdf_str.encode(self.encoding))
+        tmp_pdf_path = self._write_tmp_file()
+        self.run_command([
+            pdf_file_path,
+            'fill_form', filled_fdf_path,
+            'output', tmp_pdf_path
+            ])
+        return tmp_pdf_path
+
+    def fill_pdf(self, pdf_path, answers):
+        self._coerce_to_file_path(pdf_path)
+        self._cache_fdf_for_filling = True
+        insertions = self._generate_answer_insertions(pdf_path, answers)
+        patched_fdf_str = self._patch_fdf_with_insertions(insertions)
+        output_path = self._load_patched_fdf_into_pdf(
+            pdf_path, patched_fdf_str)
+        result = open(output_path, 'rb').read()
+        self.clean_up_tmp_files()
+        return result
+
 
 
 
