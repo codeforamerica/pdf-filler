@@ -7,6 +7,11 @@ from tempfile import mkstemp
 class PdftkError(Exception):
     pass
 
+class DuplicateFormFieldError(Exception):
+    pass
+
+class MissingFormFieldError(Exception):
+    pass
 
 class PDFTKWrapper:
 
@@ -63,26 +68,16 @@ class PDFTKWrapper:
             return bytestring.decode(encoding or self.encoding)
         return bytestring
 
-    def get_fdf(self, fp):
-        """Given a path to a pdf form, this returns the decoded
-        text of an output fdf file
-        """
-        fp = self._coerce_to_file_path(fp)
-        tmp_outfile = self._write_tmp_file()
-        self.run_command([fp, 'generate_fdf',
-            'output', tmp_outfile])
-        contents = self._get_file_contents(
-            tmp_outfile, decode=True)
-        return contents
+    def run_command(self, args):
+        if args[0] != 'pdftk':
+            args.insert(0, 'pdftk')
+        process = subprocess.Popen(args,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        if err:
+            raise PdftkError(err.decode('utf-8'))
+        return out.decode('utf-8')
 
-    def get_data_fields(self, fp):
-        fp = self._coerce_to_file_path(fp)
-        tmp_outfile = self._write_tmp_file()
-        self.run_command([fp, 'dump_data_fields_utf8',
-            'output', tmp_outfile])
-        contents = self._get_file_contents(
-            tmp_outfile, decode=True, encoding='utf-8')
-        return contents
 
     def parse_fdf_fields(self, fdf_str):
         '''Yields a series of tuples, using the escaped name of the field
@@ -104,10 +99,8 @@ class PDFTKWrapper:
             yield (datum['escaped_name'], datum)
 
     def parse_data_fields(self, data_str):
-        '''Pulls out a field name and type from the resulting string of
+        '''Pulls out field data from the resulting string of
             `pdftk dump_data_fields_utf8`
-        Uses the following regex to find types and names:
-            https://regex101.com/r/iL6hW3/4
         '''
         field_opts_key = 'FieldStateOption'
         field_name_key = 'FieldName'
@@ -126,14 +119,49 @@ class PDFTKWrapper:
             if datum:
                 yield (datum[field_name_key], datum)
 
-    def run_command(self, args):
-        if args[0] != 'pdftk':
-            args.insert(0, 'pdftk')
-        process = subprocess.Popen(args,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
-        if err:
-            raise PdftkError(err.decode('utf-8'))
-        return out.decode('utf-8')
+    def get_fdf(self, fp):
+        """Given a path to a pdf form, this returns the decoded
+        text of an output fdf file
+        """
+        fp = self._coerce_to_file_path(fp)
+        tmp_outfile = self._write_tmp_file()
+        self.run_command([fp, 'generate_fdf',
+            'output', tmp_outfile])
+        contents = self._get_file_contents(
+            tmp_outfile, decode=True)
+        return contents
+
+    def get_data_fields(self, fp):
+        fp = self._coerce_to_file_path(fp)
+        tmp_outfile = self._write_tmp_file()
+        self.run_command([fp, 'dump_data_fields_utf8',
+            'output', tmp_outfile])
+        contents = self._get_file_contents(
+            tmp_outfile, decode=True, encoding='utf-8')
+        return contents
+
+    def get_form_field_data(self, fp):
+        # fdf_data & field_data are generators
+        fdf_data = self.parse_fdf_fields(self.get_fdf(fp))
+        field_data = self.parse_data_fields(self.get_data_fields(fp))
+        fields = {}
+        for name, datum in field_data:
+            if name in fields:
+                raise DuplicateFormFieldError(
+                    "Duplicate field data: '{}'".format(name))
+            fields[name] = datum
+        for name, datum in fdf_data:
+            if name not in fields:
+                raise MissingFormFieldError(
+                    "No matching data for field: '{}'".format(name))
+            elif 'fdf' in fields[name]:
+                raise DuplicateFormFieldError(
+                    "Duplicate fdf field: '{}'".format(name))
+            fields[name]['fdf'] = datum
+        return fields
+
+
+
+
 
 
