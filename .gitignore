@@ -1,3 +1,6 @@
+# OS X
+.DS_Store
+
 # virtualenv
 bin
 lib
