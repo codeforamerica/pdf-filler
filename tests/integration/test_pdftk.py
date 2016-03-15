@@ -17,27 +17,14 @@ from tests.unit.test_pdftk import (
         TEXT_SAMPLE
     )
 
+from pprint import pprint
 
 class TestPDFTK(TestCase):
 
     def setUp(self):
         TestCase.setUp(self)
         self.tmp_dir = 'data'
-        self.sample_form_path = 'data/sample_pdfs/field_type_survey.pdf'
-
-    def test_pdftk_errors(self):
-        pdftk = PDFTKWrapper()
-        pdf_file_path = os.path.join(self.tmp_dir, 'sample_form.pdf')
-        field_dump_path = os.path.join(self.tmp_dir, 'tmp-data_fields.txt')
-        args = [
-            'pdftk',
-            pdf_file_path,
-            'dump_data_fields_utf8',
-            'output',
-            field_dump_path
-        ]
-        with self.assertRaises(PdftkError):
-            pdftk.run_command(args)
+        self.sample_form_path = 'data/sample_pdfs/CleanSlateSinglePage.pdf'
 
     def test_get_fdf(self):
         pdftk = PDFTKWrapper()
@@ -95,8 +82,6 @@ class TestFields(TestCase):
             'Radio Buttons': 'yellow'
         }
         filled_pdf = pdftk.fill_pdf(path, sample_answers)
-        # open('data/sample_output/fields/radio.pdf', 'wb'
-            # ).write(filled_pdf)
         filled_sample = open(
             'data/sample_output/fields/radio.pdf', 'rb').read()
         self.assertEqual(filled_pdf, filled_sample)
