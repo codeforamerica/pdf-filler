@@ -152,7 +152,7 @@ class PDFTKWrapper:
             tmp_outfile, decode=True, encoding='utf-8')
         return contents
 
-    def get_full_form_field_data(self, pdf_file_path):
+    def _get_full_form_field_data(self, pdf_file_path):
         # fdf_data & field_data are generators
         fdf_data = self.parse_fdf_fields(
                         self.get_fdf(pdf_file_path))
@@ -172,11 +172,10 @@ class PDFTKWrapper:
                 raise DuplicateFormFieldError(
                     "Duplicate fdf field: '{}'".format(name))
             fields[name]['fdf'] = datum
-        self.clean_up_tmp_files()
         return fields
 
     def get_field_data(self, pdf_file_path):
-        full_data = self.get_full_form_field_data(
+        full_data = self._get_full_form_field_data(
                         pdf_file_path)
         data = []
         for key in full_data:
@@ -218,7 +217,7 @@ class PDFTKWrapper:
             return (start, end, value)
 
     def _generate_answer_insertions(self, pdf_path, answers):
-        fields = self.get_full_form_field_data(pdf_path)
+        fields = self._get_full_form_field_data(pdf_path)
         insertions = []
         for key in answers:
             if key in fields:
@@ -283,16 +282,23 @@ class PDFTKWrapper:
         self.clean_up_tmp_files()
         return result
 
+    def fill_pdf_many(self, pdf_path, multiple_answers):
+        pdfs = []
+        for answer in multiple_answers:
+            filled_pdf = self.fill_pdf(pdf_path, answer, False)
+            pdf_path = self._write_tmp_file(bytestring=filled_pdf)
+            pdfs.append(pdf_path)
+        return self.join_pdfs(pdfs)
 
-    def fill_pdf(self, pdf_path, answers):
-        self._coerce_to_file_path(pdf_path)
+    def fill_pdf(self, pdf_path, answers, clean_up=True):
         self._cache_fdf_for_filling = True
         insertions = self._generate_answer_insertions(pdf_path, answers)
         patched_fdf_str = self._patch_fdf_with_insertions(insertions)
         output_path = self._load_patched_fdf_into_pdf(
             pdf_path, patched_fdf_str)
         result = open(output_path, 'rb').read()
-        self.clean_up_tmp_files()
+        if clean_up:
+            self.clean_up_tmp_files()
         return result
 
 
