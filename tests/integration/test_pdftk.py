@@ -86,30 +86,6 @@ class TestFields(TestCase):
             'data/sample_output/fields/radio.pdf', 'rb').read()
         self.assertEqual(filled_pdf, filled_sample)
 
-
-    def test_fill_listbox(self):
-        path = self.field_pdfs['listbox']
-        pdftk = PDFTKWrapper()
-        results = pdftk.get_field_data(path)
-        self.assertListEqual(results, LISTBOX_SAMPLE)
-        sample_answers = {
-            'List Box1': 'durian'
-        }
-        with self.assertRaises(PdftkError):
-            filled_pdf = pdftk.fill_pdf(path, sample_answers)
-
-
-    def test_fill_dropdown(self):
-        path = self.field_pdfs['dropdown']
-        pdftk = PDFTKWrapper()
-        results = pdftk.get_field_data(path)
-        self.assertListEqual(results, DROPDOWN_SAMPLE)
-        sample_answers = {
-            'Dropdown5': 'river'
-        }
-        with self.assertRaises(PdftkError):
-            filled_pdf = pdftk.fill_pdf(path, sample_answers)
-
     def test_fill_text(self):
         path = self.field_pdfs['text']
         pdftk = PDFTKWrapper()
