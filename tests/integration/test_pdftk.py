@@ -86,6 +86,26 @@ class TestFields(TestCase):
             'data/sample_output/fields/radio.pdf', 'rb').read()
         self.assertEqual(filled_pdf, filled_sample)
 
+    def create_pdf_search_term(self, search_term, encoding='utf-8'):
+        """Converts a unicode string into the way it might actually
+        exist in the bytes of a pdf document. so we can check if the text
+        made its way into the final pdf.
+        An example:
+            the text
+                'So\nmany\nlines'
+            becomes the bytes
+                b'S\x00o\x00\\n\x00m\x00a\x00n\x00y\x00\\n\x00l\x00i\x00n\x00e\x00s'
+        """
+        # convert to bytes
+        base = search_term.encode(encoding)
+        # interleave the bytes with null bytes
+        byte_arr = []
+        for null_and_char_pair in list(zip([0 for c in base], base)):
+            byte_arr.extend(null_and_char_pair)
+        byte_str = bytes(byte_arr[1:])
+        # new lines are not what you'd expect
+        return byte_str.replace(b'\n', b'\\n')
+
     def test_fill_text(self):
         path = self.field_pdfs['text']
         pdftk = PDFTKWrapper()
@@ -96,8 +116,11 @@ class TestFields(TestCase):
             'single': 'Hello pdf world'
         }
         filled_pdf = pdftk.fill_pdf(path, sample_answers)
-        filled_sample = open(
-            'data/sample_output/fields/text.pdf', 'rb').read()
-        self.assertEqual(filled_pdf, filled_sample)
+        for key, value in sample_answers.items():
+            pdf_friendly_search_term = self.create_pdf_search_term(
+                value, pdftk.encoding)
+            self.assertIn(pdf_friendly_search_term, filled_pdf)
+
+
 
 
