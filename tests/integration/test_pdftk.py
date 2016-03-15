@@ -50,10 +50,80 @@ class TestPDFTK(TestCase):
             )
         self.assertListEqual(results, FIELD_DATA)
 
+    def create_pdf_search_term(self, search_term, encoding='utf-8'):
+        """Converts a unicode string into the way it might actually
+        exist in the bytes of a pdf document. so we can check if the text
+        made its way into the final pdf.
+        An example:
+            the text
+                'So\nmany\nlines'
+            becomes the bytes
+                b'S\x00o\x00\\n\x00m\x00a\x00n\x00y\x00\\n\x00l\x00i\x00n\x00e\x00s'
+        """
+        # convert to bytes
+        base = search_term.encode(encoding)
+        # interleave the bytes with null bytes
+        byte_arr = []
+        for null_and_char_pair in list(zip([0 for c in base], base)):
+            byte_arr.extend(null_and_char_pair)
+        byte_str = bytes(byte_arr[1:])
+        # new lines are not what you'd expect
+        return byte_str.replace(b'\n', b'\\n')
 
-class TestFields(TestCase):
+    def test_fill_example_pdf(self):
+        pdftk = PDFTKWrapper()
+        fields = pdftk.get_field_data(
+            self.sample_form_path
+            )
+
+        sample_answers = {
+            'Address City': 'Little Town',
+            'Address State': 'CA',
+            'Address Street': '111 Main Street',
+            'Address Zip': '01092',
+            'Arrested outside SF': 'No',
+            'Cell phone number': '999-999-9999',
+            'Charged with a crime': 'No',
+            'Date': '09/09/2016',
+            'Date of Birth': '09/09/9999',
+            'Dates arrested outside SF': '',
+            'Drivers License': 'D9999999',
+            'Email Address': 'berry.happy.manatee@gmail.com',
+            'Employed': 'No',
+            'First Name': 'Berry',
+            'Home phone number': '',
+            'How did you hear about the Clean Slate Program':
+                'From a wonderful friend',
+            'If probation where and when?': '',
+            'Last Name': 'Manatee',
+            'MI': 'H',
+            'May we leave voicemail': 'Yes',
+            'May we send mail here': 'Yes',
+            'Monthly expenses': '1000',
+            'On probation or parole': 'No',
+            'Other phone number': '',
+            'Serving a sentence': 'No',
+            'Social Security Number': '999-99-9999',
+            'US Citizen': 'Yes',
+            'What is your monthly income': '0',
+            'Work phone number': '',
+        }
+
+        filled_pdf = pdftk.fill_pdf(self.sample_form_path, sample_answers)
+        for field in fields:
+            field_type = field['type']
+            if field_type == 'text':
+                field_name = field['name']
+                answer_text = sample_answers[field_name]
+                search_term = self.create_pdf_search_term(answer_text)
+                self.assertIn(search_term, filled_pdf)
+
+
+
+class TestFields(TestPDFTK):
 
     def setUp(self):
+        TestPDFTK.setUp(self)
         self.field_pdfs = {}
         for field in ['text', 'checkbox', 'radio', 'listbox', 'dropdown']:
             self.field_pdfs[field] = os.path.join(
@@ -85,26 +155,6 @@ class TestFields(TestCase):
         filled_sample = open(
             'data/sample_output/fields/radio.pdf', 'rb').read()
         self.assertEqual(filled_pdf, filled_sample)
-
-    def create_pdf_search_term(self, search_term, encoding='utf-8'):
-        """Converts a unicode string into the way it might actually
-        exist in the bytes of a pdf document. so we can check if the text
-        made its way into the final pdf.
-        An example:
-            the text
-                'So\nmany\nlines'
-            becomes the bytes
-                b'S\x00o\x00\\n\x00m\x00a\x00n\x00y\x00\\n\x00l\x00i\x00n\x00e\x00s'
-        """
-        # convert to bytes
-        base = search_term.encode(encoding)
-        # interleave the bytes with null bytes
-        byte_arr = []
-        for null_and_char_pair in list(zip([0 for c in base], base)):
-            byte_arr.extend(null_and_char_pair)
-        byte_str = bytes(byte_arr[1:])
-        # new lines are not what you'd expect
-        return byte_str.replace(b'\n', b'\\n')
 
     def test_fill_text(self):
         path = self.field_pdfs['text']
