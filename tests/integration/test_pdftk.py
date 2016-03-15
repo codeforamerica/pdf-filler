@@ -120,12 +120,13 @@ class TestPDFTK(TestCase):
 
 
 
+
 class TestFields(TestPDFTK):
 
     def setUp(self):
         TestPDFTK.setUp(self)
         self.field_pdfs = {}
-        for field in ['text', 'checkbox', 'radio', 'listbox', 'dropdown']:
+        for field in ['text', 'checkbox', 'radio']:
             self.field_pdfs[field] = os.path.join(
                 'data/sample_pdfs/fields', field + '.pdf')
 
@@ -170,6 +171,27 @@ class TestFields(TestPDFTK):
             pdf_friendly_search_term = self.create_pdf_search_term(
                 value, pdftk.encoding)
             self.assertIn(pdf_friendly_search_term, filled_pdf)
+
+    def test_combine_pdfs(self):
+        pdftk = PDFTKWrapper()
+        # get all the paths of filled field samples
+        paths = [
+                    p.replace('pdfs', 'output')
+                    for p in self.field_pdfs.values()
+                ]
+        paths.sort()
+        combined_pdf = pdftk.join_pdfs(paths)
+        sample_combined = open(
+            'data/sample_output/fields/all.pdf', 'rb').read()
+        # check that there is less than 1kb difference in length
+        # between result and sample
+        self.assertLess(
+            abs(
+                len(combined_pdf) - len(sample_combined)
+                ),
+            1000
+            )
+
 
 
 

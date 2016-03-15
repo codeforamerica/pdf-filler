@@ -1,6 +1,8 @@
 import os
 import re
 import subprocess
+import random
+import string
 from tempfile import mkstemp
 
 
@@ -14,6 +16,9 @@ class MissingFormFieldError(Exception):
     pass
 
 class InvalidOptionError(Exception):
+    pass
+
+class TooManyPDFsError(Exception):
     pass
 
 class PDFTKWrapper:
@@ -245,6 +250,39 @@ class PDFTKWrapper:
             'output', tmp_pdf_path
             ])
         return tmp_pdf_path
+
+    def join_pdfs(self, pdf_paths):
+        """
+        pdftk A=in1.pdf B=in2.pdf cat A1 B2-20even output out.pdf
+        """
+        if len(pdf_paths) > 99999:
+            raise TooManyPDFsError(
+                "I'm worred about combining more than 99,999 pdfs")
+        pdf_paths = [self._coerce_to_file_path(p) for p in pdf_paths]
+        combined_pdf_path = self._write_tmp_file()
+        handle_length = 4
+        pdftk_args = []
+        handles = []
+        for i, path in enumerate(pdf_paths):
+            idxs = [int(n) for n in "{num:05d}".format(num=i)]
+            handle = ''.join(
+                string.ascii_uppercase[idx]
+                for idx in idxs
+                )
+            handles.append(handle)
+            pdftk_args.append(
+                "{}={}".format(handle, path)
+                )
+        pdftk_args.append('cat')
+        pdftk_args.extend(handles)
+        pdftk_args.extend([
+            'output', combined_pdf_path
+            ])
+        self.run_command(pdftk_args)
+        result = open(combined_pdf_path, 'rb').read()
+        self.clean_up_tmp_files()
+        return result
+
 
     def fill_pdf(self, pdf_path, answers):
         self._coerce_to_file_path(pdf_path)
