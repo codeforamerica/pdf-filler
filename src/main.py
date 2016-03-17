@@ -33,4 +33,4 @@ def register_context_processors(app):
 
 
 if __name__ == '__main__':
-    create_app().run()
+    create_app().run(host='0.0.0.0', port=int(os.environ.get('PORT', 9000)))

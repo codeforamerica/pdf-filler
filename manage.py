@@ -12,7 +12,7 @@ def _make_context():
     """
     return {'app': app, 'db': db}
 
-manager.add_command('server', Server(port=os.environ.get('PORT', 9000)))
+manager.add_command('server', Server(host='0.0.0.0', port=os.environ.get('PORT', 9000)))
 manager.add_command('shell', Shell(make_context=_make_context))
 
 

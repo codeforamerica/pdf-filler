@@ -19,7 +19,7 @@ class TestPDFHook(BaseTestCase):
         # TODO: Implement choice inputs that were stripped from the form
         results_sample = {
             'id': 1,
-            'url': 'http://localhost:5000/1/',
+            'url': 'http://localhost/1/',
             'added_on': '2016-01-10T18:35:42.653853+00:00',
             'original_pdf_title': 'sample_form.pdf',
             'latest_post': None,
