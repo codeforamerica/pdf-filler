@@ -43,7 +43,7 @@ def index():
 def post_pdf():
     # get pdf
     if not request.files:
-        abort(404)
+        abort(Response("No files found"))
     # what should it do if it receives no files?
     file_storage = request.files['file']
     # here it should pass the

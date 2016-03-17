@@ -9,7 +9,6 @@ DEFAULT_TEST_DATABASE_PATH = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'data', '
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', DEFAULT_DATABASE_PATH)
-    SERVER_NAME = os.environ.get('HOST_NAME', 'localhost:5000')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
