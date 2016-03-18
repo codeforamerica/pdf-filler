@@ -1,4 +1,5 @@
 from unittest import TestCase
+from nose.plugins.attrib import attr
 
 import os
 from src.pdftk_wrapper import (
@@ -16,8 +17,7 @@ from tests.unit.test_pdftk import (
         DROPDOWN_SAMPLE,
         TEXT_SAMPLE
     )
-
-from pprint import pprint
+from tests.mock.factories import example_pdf_answers
 
 class TestPDFTK(TestCase):
 
@@ -40,8 +40,9 @@ class TestPDFTK(TestCase):
 
     def test_get_full_form_field_data(self):
         pdftk = PDFTKWrapper()
-        results = pdftk.get_full_form_field_data(self.sample_form_path)
+        results = pdftk._get_full_form_field_data(self.sample_form_path)
         self.assertDictEqual(results, FIELD_DATA_MAP_SAMPLE)
+        pdftk.clean_up_tmp_files()
 
     def test_get_field_data(self):
         pdftk = PDFTKWrapper()
@@ -61,7 +62,7 @@ class TestPDFTK(TestCase):
                 b'S\x00o\x00\\n\x00m\x00a\x00n\x00y\x00\\n\x00l\x00i\x00n\x00e\x00s'
         """
         # convert to bytes
-        base = search_term.encode(encoding)
+        base = str(search_term).encode(encoding)
         # interleave the bytes with null bytes
         byte_arr = []
         for null_and_char_pair in list(zip([0 for c in base], base)):
@@ -118,6 +119,24 @@ class TestPDFTK(TestCase):
                 search_term = self.create_pdf_search_term(answer_text)
                 self.assertIn(search_term, filled_pdf)
 
+    @attr('slow')
+    def test_fill_many(self):
+        pdftk = PDFTKWrapper()
+        fields = pdftk.get_field_data(
+            self.sample_form_path
+            )
+        answers = example_pdf_answers(3)
+        results = pdftk.fill_pdf_many(self.sample_form_path, answers)
+        for field in fields:
+            field_type = field['type']
+            if field_type == 'text':
+                field_name = field['name']
+                for answer in answers:
+                    answer_text = answer[field_name]
+                    search_term = self.create_pdf_search_term(answer_text)
+                    self.assertIn(search_term, results)
+
+
 
 
 class TestFields(TestPDFTK):
@@ -125,7 +144,7 @@ class TestFields(TestPDFTK):
     def setUp(self):
         TestPDFTK.setUp(self)
         self.field_pdfs = {}
-        for field in ['text', 'checkbox', 'radio', 'listbox', 'dropdown']:
+        for field in ['text', 'checkbox', 'radio']:
             self.field_pdfs[field] = os.path.join(
                 'data/sample_pdfs/fields', field + '.pdf')
 
@@ -170,6 +189,28 @@ class TestFields(TestPDFTK):
             pdf_friendly_search_term = self.create_pdf_search_term(
                 value, pdftk.encoding)
             self.assertIn(pdf_friendly_search_term, filled_pdf)
+
+    @attr('slow')
+    def test_combine_pdfs(self):
+        pdftk = PDFTKWrapper()
+        # get all the paths of filled field samples
+        paths = [
+                    p.replace('pdfs', 'output')
+                    for p in self.field_pdfs.values()
+                ]
+        paths.sort()
+        combined_pdf = pdftk.join_pdfs(paths)
+        sample_combined = open(
+            'data/sample_output/fields/all.pdf', 'rb').read()
+        # check that there is less than 1kb difference in length
+        # between result and sample
+        self.assertLess(
+            abs(
+                len(combined_pdf) - len(sample_combined)
+                ),
+            1000
+            )
+
 
 
 
