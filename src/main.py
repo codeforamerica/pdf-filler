@@ -11,6 +11,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+
 def create_app():
     config = os.environ.get('CONFIG', 'src.settings.DevConfig')
     app = Flask(__name__)
@@ -21,12 +22,15 @@ def create_app():
     register_logging(app, config)
     return app
 
+
 def register_extensions(app):
     db.init_app(app)
     ma.init_app(app)
 
+
 def register_blueprints(app):
     app.register_blueprint(blueprint)
+
 
 def register_context_processors(app):
     app.context_processor(inject_static_url)
