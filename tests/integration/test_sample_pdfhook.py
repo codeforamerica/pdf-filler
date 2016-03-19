@@ -109,4 +109,3 @@ class TestPDFHook(BaseTestCase):
                     if field['type'] == 'text':
                         pdf_formatted_value = format_pdf_search_term(value)
                         self.assertIn(pdf_formatted_value, raw_pdf_bytes)
-
