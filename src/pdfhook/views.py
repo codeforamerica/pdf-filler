@@ -50,8 +50,7 @@ def index():
     serialized_pdfs = pdf_list_dumper.dump(pdfs, many=True).data
     if request_wants_json():
         return jsonify(dict(pdf_forms=serialized_pdfs))
-    return render_template('index.html',
-        pdfs=serialized_pdfs)
+    return render_template('index.html', pdfs=serialized_pdfs)
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():
@@ -72,6 +71,17 @@ def post_pdf():
     db.session.add(pdf)
     db.session.commit()
     return jsonify(pdf_dumper.dump(pdf).data)
+
+
+@blueprint.route('/<int:pdf_id>/', methods=['GET'])
+def get_pdf(pdf_id):
+    pdf = models.PDFForm.query.filter_by(id=pdf_id).first()
+    if not pdf:
+        abort(404)
+    serialized_pdf = pdf_dumper.dump(pdf).data
+    if request_wants_json():
+        return jsonify(serialized_pdf)
+    return render_template('pdf_detail.html', pdf=serialized_pdf)
 
 
 @blueprint.route('/<int:pdf_id>/', methods=['POST'])

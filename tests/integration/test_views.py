@@ -4,7 +4,9 @@ from tests.test_base import BaseTestCase
 from tests.mock.factories import PDFFormFactory
 from flask import url_for
 from src.main import db
-from src.pdfhook.serializers import PDFFormIndexDumper
+from src.pdfhook.serializers import (
+    PDFFormIndexDumper, PDFFormDumper
+    )
 
 
 class TestViews(BaseTestCase):
@@ -32,12 +34,17 @@ class TestViews(BaseTestCase):
             sorted_pdfs, many=True).data
         response = self.client.get(
             url_for('pdfhook.index'),
-            headers = [
-                ('Accept', 'application/json'),
-            ]
-            )
+            headers=[('Accept', 'application/json')])
         data = json.loads(response.data.decode('utf-8'))
         expected = dict(pdf_forms=serialized_pdfs)
+        self.assertDictEqual(expected, data)
+
+    def test_get_pdf_json_returns_serialized_pdf(self):
+        url = url_for('pdfhook.fill_pdf', pdf_id=self.pdfs[0].id)
+        response = self.client.get(url, headers=[('Accept', 'application/json')])
+        dumper = PDFFormDumper()
+        expected = dumper.dump(self.pdfs[0]).data
+        data = json.loads(response.data.decode('utf-8'))
         self.assertDictEqual(expected, data)
 
 
