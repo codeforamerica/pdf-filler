@@ -1,14 +1,16 @@
 <!-- Base from https://github.com/ahirner/TabulaRazr-OS/blob/xirr-specific/templates/index.html -->
 {% extends "base.html" %}
 {% block body %}
-<div class="row">
-  <div class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2">
-    <h3>pdfhook</h3>
-    <div class="description text-center">
-      pdfhook is a python web application that turns PDF forms into PDF-filling APIs
+
+  <div class="row">
+    <div class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2">
+      <h3>pdfhook</h3>
+      <div class="description text-center">
+        pdfhook is a python web application that turns PDF forms into PDF-filling APIs
+      </div>
     </div>
   </div>
-</div>
+
   <div class="row">
     <form class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3" action="{{ url_for('pdfhook.post_pdf') }}" enctype="multipart/form-data" method="post">
         <div class="row">
@@ -28,6 +30,38 @@
       </div>
     </form>
   </div>
+
+  {% if pdfs %}
+  <div class="row">
+    <table class="table">
+      <tr>
+        <th>PDF</th>
+        <th>Post count</th>
+        <th>Latest post</th>
+        <th>Date added</th>
+      </tr>
+    {%- for pdf in pdfs %}
+      <tr>
+        <td>
+          <a href="{{ url_for('pdfhook.get_pdf', pdf_id=pdf.id) }}">{{ pdf.original_pdf_title }}</a>
+        </td>
+        <td>
+          {{ pdf.post_count }}
+        </td>
+        <td>
+          {% if pdf.latest_post %}
+          {{ pdf.latest_post.strftime("%b %d %Y - %H:%M:%s") }}
+          {% else %} - {% endif %}
+        </td>
+        <td>
+          {{ pdf.added_on.strftime("%b %d %Y - %H:%M:%S") }}
+        </td>
+      </tr>
+    {% endfor -%}
+    </table>
+  </div>
+  {% endif %}
+
 {% endblock %}
 {% block code %}
 <script src="{{ url_for('static', filename='js/pdfhook.js') }}"></script>

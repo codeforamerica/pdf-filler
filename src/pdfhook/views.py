@@ -2,7 +2,7 @@ from flask import (
     request, render_template, jsonify, Response, url_for,
     current_app, send_file)
 from sqlalchemy.engine.reflection import Inspector
-import io, os, glob
+import io, os, glob, json
 from src.main import db
 from src.pdfhook import (
     blueprint,
@@ -47,10 +47,10 @@ def cleanup_files(response):
 def index():
     pdfs = models.PDFForm.query\
         .order_by(models.PDFForm.latest_post.desc()).all()
-    serialized_pdfs = pdf_list_dumper.dump(pdfs, many=True).data
     if request_wants_json():
+        serialized_pdfs = pdf_list_dumper.dump(pdfs, many=True).data
         return jsonify(dict(pdf_forms=serialized_pdfs))
-    return render_template('index.html', pdfs=serialized_pdfs)
+    return render_template('index.html', pdfs=pdfs)
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():
@@ -81,6 +81,7 @@ def get_pdf(pdf_id):
     serialized_pdf = pdf_dumper.dump(pdf).data
     if request_wants_json():
         return jsonify(serialized_pdf)
+    serialized_pdf = json.dumps(serialized_pdf, indent=2)
     return render_template('pdf_detail.html', pdf=serialized_pdf)
 
 
