@@ -6,7 +6,6 @@ import io, os, glob
 from src.main import db
 from src.pdfhook import (
     blueprint,
-    queries,
     serializers,
     models
 )
@@ -16,6 +15,7 @@ from src.settings import PROJECT_ROOT
 pdf_dumper = serializers.PDFFormDumper()
 pdf_loader = serializers.PDFFormLoader()
 pdftk = PDFTKWrapper(clean_up=False)
+
 
 @blueprint.before_app_first_request
 def make_sure_there_is_a_working_database(*args, **kwargs):
@@ -29,15 +29,17 @@ def make_sure_there_is_a_working_database(*args, **kwargs):
             "database tables {} not found. Creating tables".format(required_tables))
         db.create_all()
 
+
 @blueprint.after_request
 def cleanup_files(response):
     pdftk.clean_up_tmp_files()
     return response
 
-# Index page for uploading pdf
+
 @blueprint.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():
@@ -62,14 +64,16 @@ def post_pdf():
 
 @blueprint.route('/<int:pdf_id>/', methods=['POST'])
 def fill_pdf(pdf_id):
-    pdf = queries.get_pdf(id=pdf_id)
+    pdf = models.PDFForm.query.filter_by(id=pdf_id).first()
+    if not pdf:
+        abort(404)
     data = request.get_json()
     if isinstance(data, list):
         output = pdftk.fill_pdf_many(pdf.original_pdf, data)
     else:
         output = pdftk.fill_pdf(pdf.original_pdf, data)
     filename = pdf.filename_for_submission()
-    # I am unsure if this is the correct way to return
+    # I am unsure if this is the best way to return
     # the filled pdf. `output` is a `bytes` object
     return send_file(
         io.BytesIO(output),
