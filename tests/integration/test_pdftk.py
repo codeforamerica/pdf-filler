@@ -6,6 +6,7 @@ from src.pdftk_wrapper import (
     PDFTKWrapper, PdftkError
     )
 
+from tests.test_base import format_pdf_search_term
 from tests.unit.test_pdftk import (
         FDF_STR_SAMPLE,
         DATA_FIELDS_STR_SAMPLE,
@@ -50,26 +51,6 @@ class TestPDFTK(TestCase):
             self.sample_form_path
             )
         self.assertListEqual(results, FIELD_DATA)
-
-    def create_pdf_search_term(self, search_term, encoding='utf-8'):
-        """Converts a unicode string into the way it might actually
-        exist in the bytes of a pdf document. so we can check if the text
-        made its way into the final pdf.
-        An example:
-            the text
-                'So\nmany\nlines'
-            becomes the bytes
-                b'S\x00o\x00\\n\x00m\x00a\x00n\x00y\x00\\n\x00l\x00i\x00n\x00e\x00s'
-        """
-        # convert to bytes
-        base = str(search_term).encode(encoding)
-        # interleave the bytes with null bytes
-        byte_arr = []
-        for null_and_char_pair in list(zip([0 for c in base], base)):
-            byte_arr.extend(null_and_char_pair)
-        byte_str = bytes(byte_arr[1:])
-        # new lines are not what you'd expect
-        return byte_str.replace(b'\n', b'\\n')
 
     def test_fill_example_pdf(self):
         pdftk = PDFTKWrapper()
@@ -116,7 +97,7 @@ class TestPDFTK(TestCase):
             if field_type == 'text':
                 field_name = field['name']
                 answer_text = sample_answers[field_name]
-                search_term = self.create_pdf_search_term(answer_text)
+                search_term = format_pdf_search_term(answer_text)
                 self.assertIn(search_term, filled_pdf)
 
     @attr('slow')
@@ -133,7 +114,7 @@ class TestPDFTK(TestCase):
                 field_name = field['name']
                 for answer in answers:
                     answer_text = answer[field_name]
-                    search_term = self.create_pdf_search_term(answer_text)
+                    search_term = format_pdf_search_term(answer_text)
                     self.assertIn(search_term, results)
 
 
@@ -186,7 +167,7 @@ class TestFields(TestPDFTK):
         }
         filled_pdf = pdftk.fill_pdf(path, sample_answers)
         for key, value in sample_answers.items():
-            pdf_friendly_search_term = self.create_pdf_search_term(
+            pdf_friendly_search_term = format_pdf_search_term(
                 value, pdftk.encoding)
             self.assertIn(pdf_friendly_search_term, filled_pdf)
 
