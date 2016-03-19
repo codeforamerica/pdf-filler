@@ -13,13 +13,9 @@ class PDFFormDumper(ma.ModelSchema):
     url = fields.Function(lambda pdf: generate_pdf_post_url(pdf))
 
     @post_dump
-    def post_process_fdf_map(self, data, *args, **kwargs):
-        fields = {}
-        fdf_string = data.pop('fdf_mapping')
-        fdf_dict = json.loads(fdf_string)
-        for key, field in fdf_dict.items():
-            fields[key] = field['type']
-        data['fields'] = fields
+    def post_process_field_map(self, data, *args, **kwargs):
+        field_map_string = data.pop('field_map')
+        data['fields'] = json.loads(field_map_string)
         return data
 
     class Meta:
@@ -31,16 +27,16 @@ class PDFFormDumper(ma.ModelSchema):
             'original_pdf_title',
             'latest_post',
             'post_count',
-            'fdf_mapping',
+            'field_map',
             )
 
 
 class PDFFormLoader(ma.ModelSchema):
 
     @pre_load
-    def fdf_map_to_string(self, data, *args, **kwargs):
-        if 'fdf_mapping' in data:
-            data['fdf_mapping'] = json.dumps(data['fdf_mapping'])
+    def field_map_to_string(self, data, *args, **kwargs):
+        if 'field_map' in data:
+            data['field_map'] = json.dumps(data['field_map'])
         return data
 
     class Meta:

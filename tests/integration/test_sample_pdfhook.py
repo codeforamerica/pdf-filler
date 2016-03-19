@@ -6,7 +6,7 @@ from unittest.mock import patch
 import requests
 import json
 import glob
-from tests.test_base import BaseTestCase
+from tests.test_base import BaseTestCase, format_pdf_search_term
 
 
 class TestPDFHook(BaseTestCase):
@@ -14,32 +14,49 @@ class TestPDFHook(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
         self.pdf_file = 'data/sample_pdfs/sample_form.pdf'
+        self.output_path = 'data/sample_output/sample_form-filled.pdf'
 
     def test_pdf_upload(self):
         # TODO: Implement choice inputs that were stripped from the form
         results_sample = {
             'id': 1,
-            'url': 'http://localhost/1/',
-            'added_on': '2016-01-10T18:35:42.653853+00:00',
             'original_pdf_title': 'sample_form.pdf',
+            'url': 'http://localhost/1/',
             'latest_post': None,
             'post_count': 0,
-            'fields': {
-                'given-name-text-box': 'Text',
-                'family-name-text-box': 'Text',
-                'address-1-text-box': 'Text',
-                'house-nr-text-box': 'Text',
-                'address-2-text-box': 'Text',
-                'postcode-text-box': 'Text',
-                'city-text-box': 'Text',
-                '150': 'Text', # This is for height and is kind of strange
-                'driving-license-check-box': 'Button',
-                'language-1-check-box': 'Button',
-                'language-2-check-box': 'Button',
-                'language-3-check-box': 'Button',
-                'language-4-check-box': 'Button',
-                'language-5-check-box': 'Button',
-            }
+            'fields': [
+                {'name': 'Address 1 Text Box', 'type': 'text', 'value': ''},
+                {'name': 'Address 2 Text Box', 'type': 'text', 'value': ''},
+                {'name': 'City Text Box', 'type': 'text', 'value': ''},
+                {'name': 'Driving License Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Off'},
+                {'name': 'Family Name Text Box', 'type': 'text', 'value': ''},
+                {'name': 'Given Name Text Box', 'type': 'text', 'value': ''},
+                {'name': 'Height Formatted Field', 'type': 'text', 'value': '150'},
+                {'name': 'House nr Text Box', 'type': 'text', 'value': ''},
+                {'name': 'Language 1 Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Off'},
+                {'name': 'Language 2 Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Yes'},
+                {'name': 'Language 3 Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Off'},
+                {'name': 'Language 4 Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Off'},
+                {'name': 'Language 5 Check Box',
+                 'options': ['Off', 'Yes'],
+                 'type': 'button',
+                 'value': 'Off'},
+                {'name': 'Postcode Text Box', 'type': 'text', 'value': ''}],
         }
         with open(self.pdf_file, 'rb') as f:
             response = self.client.post(
@@ -53,31 +70,13 @@ class TestPDFHook(BaseTestCase):
                     'pdfhook.fill_pdf', _external=True, pdf_id=results['id']))
             self.assertIn('fields', results)
             # compare results sans date
-            results_sample.pop('added_on')
             results.pop('added_on')
             self.maxDiff = None
             self.assertDictEqual(results, results_sample)
             self.assertEqual(glob.glob('data/tmp*'), [])
             self.assertEqual(glob.glob('data/filled*'), [])
 
-    @patch('src.pdfhook.tasks.fill_pdf')
-    def test_fill_pdf(self, fill_pdf):
-        # TODO: Setting checkboxes still doesn't do anything
-        post_data = {
-            'given-name-text-box': 'Gaurav',
-            'family-name-text-box': 'Kulkarni',
-            'address-1-text-box': '1 Main St',
-            'postcode-text-box': '94107',
-            'city-text-box': 'San Francisco',
-            '150': '150cm',
-            'driving-license-check-box': True,
-            'language-2-check-box': True,
-        }
-        test_file_content = b'some_binary_data'
-        test_file_path = 'test_path.pdf'
-        with open(test_file_path, 'wb') as f:
-            f.write(test_file_content)
-        fill_pdf.return_value = test_file_path
+    def test_fill_pdf(self):
         # first we need a pdf loaded
         with open(self.pdf_file, 'rb') as f:
             files = {'file': f}
@@ -86,15 +85,28 @@ class TestPDFHook(BaseTestCase):
                 data={'file':f}
                 )
             results = json.loads(r.data.decode('utf-8'))
+        fields = results['fields']
+
+        post_data = {
+            'Given Name Text Box': 'Gaurav',
+            'Family Name Text Box': 'Kulkarni',
+            'Address 1 Text Box': '1 Main St',
+            'Postcode Text Box': '94107',
+            'City Text Box': 'San Francisco',
+            'Height Formatted Field': '150cm',
+            'Driving License Check Box': 'Yes',
+            'Language 2 Check Box': 'Yes',
+        }
         response = self.client.post(
             results['url'],
             headers={'Content-Type': 'application/json'},
             data=json.dumps(post_data)
             )
-        results = response.data
-        self.assertEqual(test_file_content, results)
-        os.remove(test_file_path)
-
-        self.assertEqual(glob.glob('data/tmp*'), [])
-        self.assertEqual(glob.glob('data/filled*'), [])
+        raw_pdf_bytes = response.data
+        for key, value in post_data.items():
+            for field in fields:
+                if field['name'] == key:
+                    if field['type'] == 'text':
+                        pdf_formatted_value = format_pdf_search_term(value)
+                        self.assertIn(pdf_formatted_value, raw_pdf_bytes)
 

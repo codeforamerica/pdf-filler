@@ -9,26 +9,35 @@ from tempfile import mkstemp
 class PdftkError(Exception):
     pass
 
+
 class DuplicateFormFieldError(Exception):
     pass
+
 
 class MissingFormFieldError(Exception):
     pass
 
+
 class InvalidOptionError(Exception):
     pass
+
 
 class TooManyPDFsError(Exception):
     pass
 
+class InvalidAnswersError(Exception):
+    pass
+
+
 class PDFTKWrapper:
 
-    def __init__(self, encoding='latin-1', tmp_path=None):
+    def __init__(self, encoding='latin-1', tmp_path=None, clean_up=True):
         self.encoding = encoding
         self.TEMP_FOLDER_PATH = tmp_path
         self._tmp_files = []
         self._cache_fdf_for_filling = False
         self._fdf_cache = None
+        self.clean_up = clean_up
 
     def _coerce_to_file_path(self, path_or_file_or_bytes):
         """This converst file-like objects and `bytes` into
@@ -79,6 +88,11 @@ class PDFTKWrapper:
         return bytestring
 
     def run_command(self, args):
+        """Run a command to pdftk on the command line.
+            `args` is a list of command line arguments.
+        This method is reponsible for handling errors that arise from
+        pdftk's CLI
+        """
         if args[0] != 'pdftk':
             args.insert(0, 'pdftk')
         process = subprocess.Popen(args,
@@ -87,7 +101,6 @@ class PDFTKWrapper:
         if err:
             raise PdftkError(err.decode('utf-8'))
         return out.decode('utf-8')
-
 
     def parse_fdf_fields(self, fdf_str):
         '''Yields a series of tuples, using the escaped name of the field
@@ -224,6 +237,14 @@ class PDFTKWrapper:
                 insertion = self._build_answer_insertion(
                     answers[key], fields[key])
                 insertions.append(insertion)
+        if not insertions:
+            raise InvalidAnswersError("""No valid answers were found.
+Answer Keys: {}
+Available Fields: {}
+""".format(
+    str(list(answers.keys())),
+    str(list(fields.keys()))
+    ))
         insertions.sort(key=lambda i: i[0])
         return insertions
 
@@ -279,25 +300,33 @@ class PDFTKWrapper:
             ])
         self.run_command(pdftk_args)
         result = open(combined_pdf_path, 'rb').read()
-        self.clean_up_tmp_files()
+        if self.clean_up:
+            self.clean_up_tmp_files()
         return result
 
     def fill_pdf_many(self, pdf_path, multiple_answers):
         pdfs = []
+        _clean_up_setting = self.clean_up
+        # don't clean up while filling multiple pdfs
+        self.clean_up = False
+        pdf_path = self._coerce_to_file_path(pdf_path)
         for answer in multiple_answers:
-            filled_pdf = self.fill_pdf(pdf_path, answer, False)
+            filled_pdf = self.fill_pdf(pdf_path, answer)
             pdf_path = self._write_tmp_file(bytestring=filled_pdf)
             pdfs.append(pdf_path)
+        # restore the clean up setting
+        self.clean_up = _clean_up_setting
         return self.join_pdfs(pdfs)
 
-    def fill_pdf(self, pdf_path, answers, clean_up=True):
+    def fill_pdf(self, pdf_path, answers):
         self._cache_fdf_for_filling = True
+        pdf_path = self._coerce_to_file_path(pdf_path)
         insertions = self._generate_answer_insertions(pdf_path, answers)
         patched_fdf_str = self._patch_fdf_with_insertions(insertions)
         output_path = self._load_patched_fdf_into_pdf(
             pdf_path, patched_fdf_str)
         result = open(output_path, 'rb').read()
-        if clean_up:
+        if self.clean_up:
             self.clean_up_tmp_files()
         return result
 

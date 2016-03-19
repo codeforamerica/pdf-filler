@@ -6,15 +6,16 @@ import io, os, glob
 from src.main import db
 from src.pdfhook import (
     blueprint,
-    tasks,
     queries,
     serializers,
     models
 )
+from src.pdftk_wrapper import PDFTKWrapper
 from src.settings import PROJECT_ROOT
 
 pdf_dumper = serializers.PDFFormDumper()
 pdf_loader = serializers.PDFFormLoader()
+pdftk = PDFTKWrapper(clean_up=False)
 
 @blueprint.before_app_first_request
 def make_sure_there_is_a_working_database(*args, **kwargs):
@@ -30,8 +31,7 @@ def make_sure_there_is_a_working_database(*args, **kwargs):
 
 @blueprint.after_request
 def cleanup_files(response):
-    [os.remove(filename) for filename in glob.glob('./data/tmp*')]
-    [os.remove(filename) for filename in glob.glob('./data/filled*')]
+    pdftk.clean_up_tmp_files()
     return response
 
 # Index page for uploading pdf
@@ -46,17 +46,13 @@ def post_pdf():
         abort(Response("No files found"))
     # what should it do if it receives no files?
     file_storage = request.files['file']
-    # here it should pass the
     filename = os.path.basename(file_storage.filename)
-    temp_pdf_path = os.path.join(
-        tasks.TEMP_FOLDER_PATH, 'tmp-' + filename)
     raw_pdf_data = file_storage.read()
-    with open(temp_pdf_path, 'wb') as temp_pdf:
-        temp_pdf.write(raw_pdf_data)
-    field_definitions = tasks.build_fdf_map(temp_pdf_path)
+    field_map = pdftk.get_field_data(raw_pdf_data)
+
     pdf, errors = pdf_loader.load(dict(
         original_pdf_title=filename,
-        fdf_mapping=field_definitions
+        field_map=field_map
         ))
     pdf.original_pdf = raw_pdf_data
     db.session.add(pdf)
@@ -68,5 +64,15 @@ def post_pdf():
 def fill_pdf(pdf_id):
     pdf = queries.get_pdf(id=pdf_id)
     data = request.get_json()
-    filename = tasks.fill_pdf(pdf, data)
-    return send_file(os.path.join(PROJECT_ROOT, filename), mimetype='application/pdf')
+    if isinstance(data, list):
+        output = pdftk.fill_pdf_many(pdf.original_pdf, data)
+    else:
+        output = pdftk.fill_pdf(pdf.original_pdf, data)
+    filename = pdf.filename_for_submission()
+    # I am unsure if this is the correct way to return
+    # the filled pdf. `output` is a `bytes` object
+    return send_file(
+        io.BytesIO(output),
+        attachment_filename=filename,
+        mimetype='application/pdf')
+
