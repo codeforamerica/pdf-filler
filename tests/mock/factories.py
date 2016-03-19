@@ -1,8 +1,92 @@
-
 import random
-
+import factory
+from factory.alchemy import SQLAlchemyModelFactory
 from faker import Factory
+
+from src.main import db
+from src.pdfhook.models import PDFForm
+from src.pdfhook.serializers import PDFFormDumper
+import json
+
+
+
 fake = Factory.create('en_US')
+pdf_dumper = PDFFormDumper()
+
+def lazy(func):
+    return factory.LazyAttribute(func)
+
+
+class CheckboxFactory:
+    count = 0
+    def __call__(self, name=None):
+        self.count += 1
+        name = name or 'Checkbox '+str(self.count)
+        return {
+            'name': name,
+            'options': ['Yes', 'Off'],
+            'type': 'button'
+        }
+
+class RadioFactory:
+    count = 0
+    def __call__(self, name=None, options=None):
+        self.count += 1
+        name = name or 'Group '+str(self.count)
+        options = options or fake.bs().split(' ')
+        if 'Off' not in options:
+            options.append('Off')
+        return {
+            'name': name,
+            'options': options,
+            'type': 'button'
+        }
+
+class TextFactory:
+    count = 0
+    def __call__(self, name=None):
+        self.count += 1
+        name = name or 'Text Box '+str(self.count)
+        return {
+            'name': name,
+            'type': 'text'
+        }
+
+checkbox = CheckboxFactory()
+radio = RadioFactory()
+text = TextFactory()
+
+
+class FieldMapFactory:
+
+    def __call__(self, n=None):
+        if not n:
+            n = random.randint(3, 20)
+        fields = []
+        for i in range(n):
+            field_type = random.choice([checkbox, radio, text])
+            fields.append(field_type())
+        return fields
+
+fake_field_map = FieldMapFactory()
+
+
+class SessionFactory(SQLAlchemyModelFactory):
+    class Meta:
+        abstract = True
+        sqlalchemy_session = db.session
+
+
+class PDFFormFactory(SessionFactory):
+    class Meta:
+        model = PDFForm
+    id = factory.Sequence(lambda n: n)
+    added_on = lazy(lambda obj: fake.date_time_between('-2w'))
+    original_pdf = lazy(lambda obj: fake.binary(1024))
+    original_pdf_title = factory.Sequence(lambda n: "Form {}.pdf".format(n))
+    field_map = lazy(lambda obj: json.dumps(fake_field_map()))
+    post_count = lazy(lambda obj: random.randint(0, 100))
+    latest_post = lazy(lambda obj: fake.date_time_between(obj.added_on))
 
 
 def example_pdf_answers(count=1):
@@ -41,6 +125,13 @@ def example_pdf_answers(count=1):
         'Work phone number': '',
     } for n in range(count)]
 
+
+
 if __name__ == '__main__':
     from pprint import pprint
-    pprint(example_pdf_answers(5))
+    from src.main import create_app
+    app = create_app()
+    app.config['SERVER_NAME'] = 'pdfhook.mock.com'
+    with app.app_context():
+        pdfs = [PDFFormFactory.build() for i in range(5)]
+        pprint([pdf_dumper.dump(pdf).data for pdf in pdfs])

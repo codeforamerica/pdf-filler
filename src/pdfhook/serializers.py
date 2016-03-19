@@ -2,8 +2,6 @@ import json
 from marshmallow import Schema, fields, pre_dump, post_dump, pre_load, post_load
 from src.main import ma
 from flask import url_for
-from pprint import pprint
-
 from src.pdfhook.models import PDFForm
 
 def generate_pdf_post_url(pdf):
