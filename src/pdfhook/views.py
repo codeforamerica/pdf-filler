@@ -13,9 +13,16 @@ from src.pdftk_wrapper import PDFTKWrapper
 from src.settings import PROJECT_ROOT
 
 pdf_dumper = serializers.PDFFormDumper()
+pdf_list_dumper = serializers.PDFFormIndexDumper()
 pdf_loader = serializers.PDFFormLoader()
 pdftk = PDFTKWrapper(clean_up=False)
 
+def request_wants_json():
+    best = request.accept_mimetypes \
+        .best_match(['application/json', 'text/html'])
+    return best == 'application/json' and \
+        request.accept_mimetypes[best] > \
+        request.accept_mimetypes['text/html']
 
 @blueprint.before_app_first_request
 def make_sure_there_is_a_working_database(*args, **kwargs):
@@ -38,8 +45,13 @@ def cleanup_files(response):
 
 @blueprint.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
-
+    pdfs = models.PDFForm.query\
+        .order_by(models.PDFForm.latest_post.desc()).all()
+    serialized_pdfs = pdf_list_dumper.dump(pdfs, many=True).data
+    if request_wants_json():
+        return jsonify(dict(pdf_forms=serialized_pdfs))
+    return render_template('index.html',
+        pdfs=serialized_pdfs)
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():

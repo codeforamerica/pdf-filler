@@ -28,6 +28,18 @@ class PDFFormDumper(ma.ModelSchema):
             'field_map',
             )
 
+class PDFFormIndexDumper(ma.ModelSchema):
+    url = fields.Function(lambda pdf: generate_pdf_post_url(pdf))
+
+    class Meta:
+        model = PDFForm
+        fields = (
+            'added_on',
+            'url',
+            'original_pdf_title',
+            'latest_post',
+            'post_count',
+            )
 
 class PDFFormLoader(ma.ModelSchema):
 
