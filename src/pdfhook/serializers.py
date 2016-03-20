@@ -2,8 +2,6 @@ import json
 from marshmallow import Schema, fields, pre_dump, post_dump, pre_load, post_load
 from src.main import ma
 from flask import url_for
-from pprint import pprint
-
 from src.pdfhook.models import PDFForm
 
 def generate_pdf_post_url(pdf):
@@ -30,6 +28,18 @@ class PDFFormDumper(ma.ModelSchema):
             'field_map',
             )
 
+class PDFFormIndexDumper(ma.ModelSchema):
+    url = fields.Function(lambda pdf: generate_pdf_post_url(pdf))
+
+    class Meta:
+        model = PDFForm
+        fields = (
+            'added_on',
+            'url',
+            'original_pdf_title',
+            'latest_post',
+            'post_count',
+            )
 
 class PDFFormLoader(ma.ModelSchema):
 
