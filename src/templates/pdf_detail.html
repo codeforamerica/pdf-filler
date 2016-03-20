@@ -1,6 +1,35 @@
 {% extends "base.html" %}
 {% block body %}
-<pre>
-  {{ pdf }}
-</pre>
+<form action="{{ pdf.url }}" method="post" class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3">
+<h1>{{ pdf.original_pdf_title }}</h1>
+<hr>
+{% for field in pdf.fields %}
+<fieldset class="form-group">
+  {% set field_index = loop.index %}
+  {% if field.type == 'text' %}
+  <label for="field{{ field_index }}" class="field-label">{{ field.name }}</label>
+  <input class="form-control" name="field{{ field_index }}" type="text">
+  {% elif field.options|length > 2 %}
+  <p><strong>{{ field.name }}</strong></p>
+  {% for option in field.options %}
+    {% if option != 'Off' %}
+      <span class="radio-inline">
+        <label>
+          <input type="radio" name="field{{ field_index }}" value="{{ option }}"> {{ option }}
+        </label>
+      </span>
+    {% endif %}
+  {% endfor %}
+  {% else %}
+  <div class="checkbox">
+  <label>
+    <input type="checkbox" name="field{{ field_index }}" value="Yes"> {{ field.name }}
+  </label>
+  </div>
+  {% endif %}
+</fieldset>
+{% endfor %}
+
+<button type="submit" class="btn btn-primary">Submit</button>
+</form>
 {% endblock body %}
