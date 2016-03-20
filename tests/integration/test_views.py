@@ -21,7 +21,7 @@ class TestViews(BaseTestCase):
             url_for('pdfhook.index')
             )
         self.assertIn(
-            '<h4 class="text-center">Upload a PDF Form to Try It Out</h4>',
+            'Upload a PDF Form to Try It Out',
             response.data.decode('utf-8')
         )
 
