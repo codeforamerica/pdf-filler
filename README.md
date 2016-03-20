@@ -6,6 +6,8 @@ A Python web application for converting PDF forms into PDF-filling APIs.
 
 You post an interactive PDF form, and the app will return a URL. If you post JSONs to that URL, the app will return the PDF and use the JSON to fill the form fields.
 
+![pdfhook](https://cloud.githubusercontent.com/assets/451510/13902345/bc4bd6f4-ee01-11e5-811c-abd5870acd79.gif)
+
 
 ### Status
 
