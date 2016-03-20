@@ -3,64 +3,74 @@
 {% block body %}
 
   <div class="row">
-    <div class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2">
+    <div class="col-md-10 col-xs-12 col-md-offset-1">
       <h3>pdfhook</h3>
-      <div class="description text-center">
-        pdfhook is a python web application that turns PDF forms into PDF-filling APIs
+      <div class="description">
+        <code>pdfhook</code>
+         is a python web application that turns PDF forms into PDF-filling APIs
       </div>
     </div>
   </div>
 
   <div class="row">
-    <form class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3" action="{{ url_for('pdfhook.post_pdf') }}" enctype="multipart/form-data" method="post">
-        <div class="row">
-          <h4 class="text-center">Upload a PDF Form to Try It Out</h4>
-          <div class="input-group form-group">
-              <span class="input-group-btn">
-                  <span class="btn btn-primary btn-file">
-                      Browse&hellip; <input type="file" name="file" multiple>
-                  </span>
+    <form class="col-md-6 col-xs-8 col-md-offset-1" action="{{ url_for('pdfhook.post_pdf') }}" enctype="multipart/form-data" method="post">
+      <h4>Upload a PDF Form to Try It Out</h4>
+      <div class="input-group form-group">
+          <span class="input-group-btn">
+              <span class="btn btn-primary btn-file">
+                  Browse&hellip; <input type="file" name="file" multiple>
               </span>
-              <input type="text" class="form-control" readonly>
-          </div>
-          <a class="text-center" href="https://github.com/codeforamerica/pdfhook/">Get it on Github</a>
+          </span>
+          <input type="text" class="form-control" readonly>
       </div>
-      <div class="row">
-        <button type="submit" name="submit" class="btn btn-primary btn-lg pull-right">Send</button>
-      </div>
+      <a class="text-center" href="https://github.com/codeforamerica/pdfhook/">Get it on Github</a>
+      <button type="submit" name="submit" class="btn btn-primary btn-lg pull-right">Send</button>
     </form>
   </div>
 
   {% if pdfs %}
   <div class="row">
-    <table class="table">
-      <tr>
-        <th>PDF</th>
-        <th>Post count</th>
-        <th>Latest post</th>
-        <th>Date added</th>
-      </tr>
-    {%- for pdf in pdfs %}
-      <tr>
-        <td>
-          <a href="{{ url_for('pdfhook.get_pdf', pdf_id=pdf.id) }}">{{ pdf.original_pdf_title }}</a>
-        </td>
-        <td>
-          {{ pdf.post_count }}
-        </td>
-        <td>
-          {% if pdf.latest_post %}
-          {{ pdf.latest_post.strftime("%b %d %Y - %H:%M:%s") }}
-          {% else %} - {% endif %}
-        </td>
-        <td>
-          {{ pdf.added_on.strftime("%b %d %Y - %H:%M:%S") }}
-        </td>
-      </tr>
-    {% endfor -%}
+    <div class="table-container col-md-10 col-xs-12 col-md-offset-1">
+      <table class="table">
+        <tr>
+          <th>PDF</th>
+          <th>Post count</th>
+          <th>Latest post</th>
+          <th>Date added</th>
+        </tr>
+      {%- for pdf in pdfs %}
+        <tr>
+          <td>
+            <a href="{{ url_for('pdfhook.get_pdf', pdf_id=pdf.id) }}">{{ pdf.original_pdf_title }}</a>
+          </td>
+          <td>
+            {{ pdf.post_count }}
+          </td>
+          <td>
+            {% if pdf.latest_post %}
+            {{ pdf.latest_post.strftime("%b %d %Y - %H:%M:%S") }}
+            {% else %} - {% endif %}
+          </td>
+          <td>
+            {{ pdf.added_on.strftime("%b %d %Y - %H:%M:%S") }}
+          </td>
+        </tr>
+      {% endfor -%}
     </table>
+
+    </div>
   </div>
   {% endif %}
+
+
+  <div class="row">
+    <div class="attribution col-xs-12 col-md-offset-1">
+      <p>
+        A project by
+      </p>
+      <img src="//www.codeforamerica.org/assets/logo.png" alt="Code For America" class="logo"/>
+    </div>
+  </div>
 
 {% endblock %}
 {% block code %}

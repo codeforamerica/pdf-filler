@@ -28,7 +28,10 @@ input[readonly] {
 }
 
 .footer p {
-  text-align: right;
   color: gray;
   font-style: italic;
+}
+
+.row + .row {
+  margin-top: 2em;
 }
