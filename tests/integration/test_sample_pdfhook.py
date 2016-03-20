@@ -61,7 +61,8 @@ class TestPDFHook(BaseTestCase):
         with open(self.pdf_file, 'rb') as f:
             response = self.client.post(
                 url_for('pdfhook.post_pdf'),
-                data={'file':f}
+                data={'file':f},
+                headers=[('Accept', 'application/json')]
                 )
             results = json.loads(response.data.decode('utf-8'))
             self.assertIn('id', results)
@@ -82,7 +83,8 @@ class TestPDFHook(BaseTestCase):
             files = {'file': f}
             r = self.client.post(
                 url_for('pdfhook.post_pdf'),
-                data={'file':f}
+                data={'file':f},
+                headers=[('Accept', 'application/json')]
                 )
             results = json.loads(r.data.decode('utf-8'))
         fields = results['fields']
