@@ -17,12 +17,14 @@ pdf_list_dumper = serializers.PDFFormIndexDumper()
 pdf_loader = serializers.PDFFormLoader()
 pdftk = PDFTKWrapper(clean_up=False)
 
+
 def request_wants_json():
     best = request.accept_mimetypes \
         .best_match(['application/json', 'text/html'])
     return best == 'application/json' and \
         request.accept_mimetypes[best] > \
         request.accept_mimetypes['text/html']
+
 
 @blueprint.before_app_first_request
 def make_sure_there_is_a_working_database(*args, **kwargs):
@@ -51,6 +53,7 @@ def index():
         serialized_pdfs = pdf_list_dumper.dump(pdfs, many=True).data
         return jsonify(dict(pdf_forms=serialized_pdfs))
     return render_template('index.html', pdfs=pdfs)
+
 
 @blueprint.route('/', methods=['POST'])
 def post_pdf():
@@ -84,7 +87,7 @@ def get_pdf(pdf_id):
     serialized_pdf = pdf_dumper.dump(pdf).data
     if request_wants_json():
         return jsonify(serialized_pdf)
-    return render_template('pdf_detail.html', pdf=serialized_pdf)
+    return render_template('pdf_detail.html', pdf=serialized_pdf, json=json)
 
 
 @blueprint.route('/<int:pdf_id>/', methods=['POST'])
