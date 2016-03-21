@@ -38,6 +38,7 @@ class PDFTKWrapper:
         self._cache_fdf_for_filling = False
         self._fdf_cache = None
         self.clean_up = clean_up
+        self.PDFTK_PATH = os.environ.get('PDFTK_PATH', 'pdftk')
 
     def _coerce_to_file_path(self, path_or_file_or_bytes):
         """This converst file-like objects and `bytes` into
@@ -93,8 +94,8 @@ class PDFTKWrapper:
         This method is reponsible for handling errors that arise from
         pdftk's CLI
         """
-        if args[0] != 'pdftk':
-            args.insert(0, 'pdftk')
+        if args[0] != self.PDFTK_PATH:
+            args.insert(0, self.PDFTK_PATH)
         process = subprocess.Popen(args,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
