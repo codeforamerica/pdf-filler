@@ -20,6 +20,10 @@ def create_app():
     register_blueprints(app)
     register_context_processors(app)
     register_logging(app, config)
+    # If the app is running on Heroku, use SSLify
+    if 'DYNO' in os.environ:
+        from flask_sslify import SSLify
+        SSLify(app)
     return app
 
 
