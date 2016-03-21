@@ -15,6 +15,7 @@ class Config:
 class ProdConfig(Config):
     ENV = 'prod'
     DEBUG = False
+    PREFERRED_URL_SCHEME = 'https'
 
 
 class DevConfig(Config):
