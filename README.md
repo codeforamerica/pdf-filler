@@ -94,4 +94,12 @@ Visit [http://localhost:5000/](http://localhost:5000/) to see the demo page. Use
 
 ### Deployment
 
-_Not yet implemented_
+To redeploy on Heroku:
+
+    heroku apps:create
+    heroku addons:create heroku-postgresql:hobby-dev
+    heroku buildpacks:set heroku/python
+    heroku buildpacks:add --index 1 https://github.com/fxtentacle/heroku-pdftk-buildpack
+    heroku config:set LD_LIBRARY_PATH=/app/bin
+    heroku config:set PDFTK_PATH=/app/bin/pdftk
+    git push heroku master
