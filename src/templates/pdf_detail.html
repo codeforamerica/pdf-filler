@@ -14,7 +14,7 @@
 </div>
 
 <div class="row">
-  <form action="{{ pdf.url }}" method="post" class="col-xs-6 col-xs-offset-3">
+  <form action="{{ url_for('pdfhook.get_pdf', pdf_id=pdf.id) }}" method="post" class="col-xs-6 col-xs-offset-3">
     <h3>Example Form</h3>
     {% for field in pdf.fields %}
     <fieldset class="form-group">
