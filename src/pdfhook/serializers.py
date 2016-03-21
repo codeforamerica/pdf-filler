@@ -1,11 +1,13 @@
 import json
 from marshmallow import Schema, fields, pre_dump, post_dump, pre_load, post_load
 from src.main import ma
-from flask import url_for
+from flask import url_for, current_app
 from src.pdfhook.models import PDFForm
 
 def generate_pdf_post_url(pdf):
-    return url_for('pdfhook.fill_pdf', _external=True, pdf_id=pdf.id)
+    return url_for('pdfhook.fill_pdf', _external=True,
+        _scheme=current_app.config['PREFERRED_URL_SCHEME'],
+        pdf_id=pdf.id)
 
 class PDFFormDumper(ma.ModelSchema):
     url = fields.Function(lambda pdf: generate_pdf_post_url(pdf))
