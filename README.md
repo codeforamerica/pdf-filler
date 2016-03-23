@@ -72,7 +72,7 @@ If your computer does not have Python 3, you can install it on OS X using [Homeb
 
     git clone https://github.com/codeforamerica/pdfhook.git
     cd pdfhook
-    python3.5 -m venv .  # create the virtual environment
+    python3 -m venv .  # create the virtual environment
     source bin/activate
     make install
 
