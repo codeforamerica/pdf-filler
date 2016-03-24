@@ -75,3 +75,4 @@ target/
 
 #Databases
 *.db
+cf-ssh.yml
