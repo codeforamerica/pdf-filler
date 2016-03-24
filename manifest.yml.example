@@ -1,0 +1,11 @@
+---
+applications:
+- disk_quota: 512M
+  path: .
+  timeout: 180
+  instances: 1
+  memory: 512M
+  name: pdfhook
+  buildpack: https://github.com/ddollar/heroku-buildpack-multi.git
+  services:
+  - pdfhook-db

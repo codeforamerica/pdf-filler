@@ -76,3 +76,4 @@ target/
 #Databases
 *.db
 cf-ssh.yml
+manifest.yml
