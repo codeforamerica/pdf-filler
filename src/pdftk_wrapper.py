@@ -28,8 +28,13 @@ class TooManyPDFsError(Exception):
 class InvalidAnswersError(Exception):
     pass
 
+class UnsupportedFieldTypeError(Exception):
+    pass
+
 
 class PDFTKWrapper:
+
+    supported_field_types = ['text', 'button', 'choice']
 
     def __init__(self, encoding='latin-1', tmp_path=None, clean_up=True):
         self.encoding = encoding
@@ -205,6 +210,9 @@ class PDFTKWrapper:
                 if 'value' in datum:
                     if datum['value'] not in datum['options']:
                         datum['options'].append(datum['value'])
+            if datum['type'] not in self.supported_field_types:
+                raise UnsupportedFieldTypeError(
+                    "Unsupported field type: '{}'".format(datum['type']))
             data.append(datum)
         return sorted(data, key=lambda d: d['name'])
 

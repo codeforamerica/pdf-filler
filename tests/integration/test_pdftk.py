@@ -1,9 +1,10 @@
 from unittest import TestCase
 from nose.plugins.attrib import attr
+from nose.tools import raises
 
 import os
 from src.pdftk_wrapper import (
-    PDFTKWrapper, PdftkError
+    PDFTKWrapper, PdftkError, UnsupportedFieldTypeError
     )
 
 from tests.test_base import format_pdf_search_term
@@ -125,7 +126,7 @@ class TestFields(TestPDFTK):
     def setUp(self):
         TestPDFTK.setUp(self)
         self.field_pdfs = {}
-        for field in ['text', 'checkbox', 'radio']:
+        for field in ['text', 'checkbox', 'radio', 'signature']:
             self.field_pdfs[field] = os.path.join(
                 'data/sample_pdfs/fields', field + '.pdf')
 
@@ -171,13 +172,23 @@ class TestFields(TestPDFTK):
                 value, pdftk.encoding)
             self.assertIn(pdf_friendly_search_term, filled_pdf)
 
+
+    @raises(UnsupportedFieldTypeError)
+    def test_fill_signature(self):
+        path = self.field_pdfs['signature']
+        pdftk = PDFTKWrapper()
+        field_data = pdftk.get_field_data(path)
+        print(field_data)
+
     @attr('slow')
     def test_combine_pdfs(self):
         pdftk = PDFTKWrapper()
         # get all the paths of filled field samples
+        pdfs = self.field_pdfs
+        del pdfs['signature']
         paths = [
                     p.replace('pdfs', 'output')
-                    for p in self.field_pdfs.values()
+                    for p in pdfs.values()
                 ]
         paths.sort()
         combined_pdf = pdftk.join_pdfs(paths)
