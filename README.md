@@ -104,3 +104,9 @@ To redeploy on Heroku:
     heroku config:set PDFTK_PATH=/app/bin/pdftk
     heroku config:set CONFIG=src.settings.ProdConfig
     git push heroku master
+
+To deploy on Cloud Foundry:
+
+    cp manifest.yml.example manifest.yml
+    # make any changes to `manifest.yml`, if desired
+    cf push -f manifest.yml
