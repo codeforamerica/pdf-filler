@@ -75,5 +75,7 @@ target/
 
 #Databases
 *.db
+
+# Cloud Foundry
 cf-ssh.yml
 manifest.yml
