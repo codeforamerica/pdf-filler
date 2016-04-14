@@ -208,7 +208,7 @@ class TestPDFTK(TestCase):
         fake_open.return_value = Mock(
             read=Mock(
                 return_value=fake_read_results)
-            )
+        )
 
         clean_up_tmp_files = Mock()
         pdftk.clean_up_tmp_files = clean_up_tmp_files
@@ -229,7 +229,40 @@ class TestPDFTK(TestCase):
         clean_up_tmp_files.reset_mock()
         clean_up_tmp_files.assert_not_called()
 
+    def test_fill_pdf_many(self):
+        #vars
+        pdftk = PDFTKWrapper()
+        fake_answer = Mock()
+        fake_multiple_answers = [fake_answer]
 
+        #ensure self.clean_up value is preserved
+        fake_clean_up = pdftk.clean_up
+        _fake_clean_up_setting = fake_clean_up
+        fake_clean_up = False
+        fake_clean_up = _fake_clean_up_setting
 
+        #pdf path (should be same as in fill_pdf)
+        fake_path = "some/fake/path.pdf"
 
+        coerce_to_file_path = Mock(return_value=fake_path)
+        pdftk._coerce_to_file_path = coerce_to_file_path
+        #for loop
+        fake_fill_pdf = Mock()
+        pdftk.fill_pdf = fake_fill_pdf
 
+        fake_filled_pdf = Mock()
+        pdftk.fill_pdf.return_value = fake_filled_pdf
+        fake_write_tmp_file = Mock(return_value=fake_path)
+        pdftk._write_tmp_file = fake_write_tmp_file
+
+        #join_pdfs
+        fake_join_pdfs = Mock()
+        pdftk.join_pdfs = fake_join_pdfs
+
+        #run the method
+        result = pdftk.fill_pdf_many(fake_path, fake_multiple_answers)
+        self.assertEqual(pdftk.clean_up, fake_clean_up)
+        coerce_to_file_path.assert_called_with(fake_path)
+        fake_fill_pdf.assert_called_with(fake_path, fake_answer)
+        fake_write_tmp_file.assert_called_with(bytestring=fake_filled_pdf)
+        fake_join_pdfs.assert_called_with([fake_path])
