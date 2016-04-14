@@ -25,8 +25,10 @@ class InvalidOptionError(Exception):
 class TooManyPDFsError(Exception):
     pass
 
+
 class InvalidAnswersError(Exception):
     pass
+
 
 class UnsupportedFieldTypeError(Exception):
     pass
@@ -102,7 +104,7 @@ class PDFTKWrapper:
         if args[0] != self.PDFTK_PATH:
             args.insert(0, self.PDFTK_PATH)
         process = subprocess.Popen(args,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
         if err:
             raise PdftkError(err.decode('utf-8'))
@@ -113,7 +115,8 @@ class PDFTKWrapper:
         followed by a dict with useful meta information about the match
             https://regex101.com/r/iL6hW3/5
         '''
-        field_pattern = re.compile(r'\/V\ (?P<value>.*)\n\/T\ \((?P<name>.*)\)')
+        field_pattern = re.compile(
+            r'\/V\ (?P<value>.*)\n\/T\ \((?P<name>.*)\)')
         for match in re.finditer(field_pattern, fdf_str):
             # it's necessary to deal with escape slashes in the field name
             # because it may otherwise fail to match the field name extracted
@@ -124,7 +127,7 @@ class PDFTKWrapper:
                 'name_span': match.span('name'),
                 'value_template': match.group('value'),
                 'value_template_span': match.span('value')
-                }
+            }
             yield (datum['escaped_name'], datum)
 
     def parse_data_fields(self, data_str):
@@ -155,7 +158,7 @@ class PDFTKWrapper:
         pdf_file_path = self._coerce_to_file_path(pdf_file_path)
         tmp_outfile = self._write_tmp_file()
         self.run_command([pdf_file_path, 'generate_fdf',
-            'output', tmp_outfile])
+                          'output', tmp_outfile])
         contents = self._get_file_contents(
             tmp_outfile, decode=True)
         if self._cache_fdf_for_filling:
@@ -166,7 +169,7 @@ class PDFTKWrapper:
         pdf_file_path = self._coerce_to_file_path(pdf_file_path)
         tmp_outfile = self._write_tmp_file()
         self.run_command([pdf_file_path, 'dump_data_fields_utf8',
-            'output', tmp_outfile])
+                          'output', tmp_outfile])
         contents = self._get_file_contents(
             tmp_outfile, decode=True, encoding='utf-8')
         return contents
@@ -174,9 +177,9 @@ class PDFTKWrapper:
     def _get_full_form_field_data(self, pdf_file_path):
         # fdf_data & field_data are generators
         fdf_data = self.parse_fdf_fields(
-                        self.get_fdf(pdf_file_path))
+            self.get_fdf(pdf_file_path))
         field_data = self.parse_data_fields(
-                        self.get_data_fields(pdf_file_path))
+            self.get_data_fields(pdf_file_path))
         fields = {}
         for name, datum in field_data:
             if name in fields:
@@ -195,7 +198,7 @@ class PDFTKWrapper:
 
     def get_field_data(self, pdf_file_path):
         full_data = self._get_full_form_field_data(
-                        pdf_file_path)
+            pdf_file_path)
         data = []
         for key in full_data:
             full_datum = full_data[key]
@@ -230,7 +233,7 @@ class PDFTKWrapper:
                         value,
                         field['FieldName'], str(options)))
             return (start, end, value)
-        else: # 'choice' and 'text' types
+        else:  # 'choice' and 'text' types
             span = field['fdf']['value_template_span']
             start = span[0] + 1
             end = span[1] - 1
@@ -251,9 +254,9 @@ class PDFTKWrapper:
 Answer Keys: {}
 Available Fields: {}
 """.format(
-    str(list(answers.keys())),
-    str(list(fields.keys()))
-    ))
+                str(list(answers.keys())),
+                str(list(fields.keys()))
+            ))
         insertions.sort(key=lambda i: i[0])
         return insertions
 
@@ -277,7 +280,7 @@ Available Fields: {}
             pdf_file_path,
             'fill_form', filled_fdf_path,
             'output', tmp_pdf_path
-            ])
+        ])
         return tmp_pdf_path
 
     def join_pdfs(self, pdf_paths):
@@ -297,16 +300,16 @@ Available Fields: {}
             handle = ''.join(
                 string.ascii_uppercase[idx]
                 for idx in idxs
-                )
+            )
             handles.append(handle)
             pdftk_args.append(
                 "{}={}".format(handle, path)
-                )
+            )
         pdftk_args.append('cat')
         pdftk_args.extend(handles)
         pdftk_args.extend([
             'output', combined_pdf_path
-            ])
+        ])
         self.run_command(pdftk_args)
         result = open(combined_pdf_path, 'rb').read()
         if self.clean_up:
@@ -338,7 +341,3 @@ Available Fields: {}
         if self.clean_up:
             self.clean_up_tmp_files()
         return result
-
-
-
-
