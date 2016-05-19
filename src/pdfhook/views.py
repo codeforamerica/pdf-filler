@@ -9,13 +9,13 @@ from src.pdfhook import (
     serializers,
     models
 )
-from src.pdftk_wrapper import PDFTKWrapper
+from src.pdfparser import PDFParser
 from src.settings import PROJECT_ROOT
 
 pdf_dumper = serializers.PDFFormDumper()
 pdf_list_dumper = serializers.PDFFormIndexDumper()
 pdf_loader = serializers.PDFFormLoader()
-pdftk = PDFTKWrapper(clean_up=False)
+pdfparser = PDFParser(clean_up=False)
 
 
 def request_wants_json():
@@ -41,7 +41,7 @@ def make_sure_there_is_a_working_database(*args, **kwargs):
 
 @blueprint.after_request
 def cleanup_files(response):
-    pdftk.clean_up_tmp_files()
+    pdfparser.clean_up_tmp_files()
     return response
 
 
@@ -64,7 +64,7 @@ def post_pdf():
     file_storage = request.files['file']
     filename = os.path.basename(file_storage.filename)
     raw_pdf_data = file_storage.read()
-    field_map = pdftk.get_field_data(raw_pdf_data)
+    field_map = pdfparser.get_field_data(raw_pdf_data)['fields']
 
     pdf, errors = pdf_loader.load(dict(
         original_pdf_title=filename,
@@ -105,9 +105,9 @@ def fill_pdf(pdf_id):
             field = field_map[idx]
             data[field['name']] = input_value
     if isinstance(data, list):
-        output = pdftk.fill_pdf_many(pdf.original_pdf, data)
+        output = pdfparser.fill_pdf_many(pdf.original_pdf, data)
     else:
-        output = pdftk.fill_pdf(pdf.original_pdf, data)
+        output = pdfparser.fill_pdf(pdf.original_pdf, data)
     pdf.post_count += 1
     pdf.latest_post = datetime.datetime.now()
     db.session.add(pdf)

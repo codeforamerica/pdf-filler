@@ -1,0 +1,5 @@
+# Install requirements for deploying on Heroku
+
+# Production requirements
+-r ./prod.txt
+psycopg2==2.6.1
