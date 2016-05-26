@@ -5,6 +5,7 @@ Flask==0.10.1
 # database
 SQLAlchemy==1.0.12
 Flask-SQLAlchemy==2.1
+psycopg2==2.6.1
 
 # serialization
 flask-marshmallow==0.6.2
@@ -14,4 +15,3 @@ marshmallow-sqlalchemy==0.8.1
 Flask-Script==2.0.5
 honcho==0.6.6
 Flask-SSLify==0.1.5
-

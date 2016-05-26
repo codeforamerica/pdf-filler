@@ -52,12 +52,8 @@ The following instructions assume:
 
 This is a [Python 3](https://docs.python.org/3/) app written using [Flask](http://flask.pocoo.org/). It has only been tested on Ubuntu 14.04 (via Travis CI) and OS X 10.11
 
-This application depends on a command line utility called [`pdftk` server](https://www.pdflabs.com/docs/pdftk-man-page/),  by [PDF Labs](https://www.pdflabs.com/), offered under a [GPL License](https://www.pdflabs.com/docs/pdftk-license/).
+This application depends on the [`itextpdf`](https://github.com/itext/itextpdf) java library, by [iText](http://itextpdf.com/), offered under [GNU AGPL version 3](https://github.com/itext/itextpdf/blob/master/LICENSE.md).
 
-### Installation
-
-If you are running OS X El Capitan 10.11, download the pdftk server installer here (requires your password for installation):
-https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg
 
 #### Install Python 3.4 or 3.5
 
@@ -94,15 +90,14 @@ Visit [http://localhost:5000/](http://localhost:5000/) to see the demo page. Use
 
 ### Deployment
 
-To redeploy on Heroku:
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+To deploy on Heroku use the button or:
+
+    git clone https://www.github/codeforamerica/pdfhook.git
+    cd pdfhook
+    heroku login
     heroku apps:create
-    heroku addons:create heroku-postgresql:hobby-dev
-    heroku buildpacks:set heroku/python
-    heroku buildpacks:add --index 1 https://github.com/fxtentacle/heroku-pdftk-buildpack
-    heroku config:set LD_LIBRARY_PATH=/app/bin
-    heroku config:set PDFTK_PATH=/app/bin/pdftk
-    heroku config:set CONFIG=src.settings.ProdConfig
     git push heroku master
 
 To deploy on Cloud Foundry:
