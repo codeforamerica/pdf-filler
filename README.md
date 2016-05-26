@@ -97,13 +97,6 @@ To redeploy on Heroku:
     heroku login
     heroku apps:create
     git push heroku master
-    # heroku addons:create heroku-postgresql:hobby-dev
-    # heroku buildpacks:set heroku/python
-    # heroku buildpacks:add --index 1 https://github.com/fxtentacle/heroku-pdftk-buildpack
-    # heroku config:set LD_LIBRARY_PATH=/app/bin
-    # heroku config:set PDFTK_PATH=/app/bin/pdftk
-    # heroku config:set CONFIG=src.settings.ProdConfig
-    # git push heroku master
 
 To deploy on Cloud Foundry:
 
