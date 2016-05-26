@@ -90,7 +90,9 @@ Visit [http://localhost:5000/](http://localhost:5000/) to see the demo page. Use
 
 ### Deployment
 
-To redeploy on Heroku:
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+To deploy on Heroku use the button or:
 
     git clone https://www.github/codeforamerica/pdfhook.git
     cd pdfhook
