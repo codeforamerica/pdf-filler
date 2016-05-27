@@ -102,6 +102,14 @@ To deploy on Heroku use the button or:
 
 To deploy on Cloud Foundry:
 
+    git clone https://www.github/codeforamerica/pdfhook.git
+    cd pdfhook
     cp manifest.yml.example manifest.yml
     # make any changes to `manifest.yml`, if desired
     cf push -f manifest.yml
+
+To deploy on Windows or Mac via virtual machine, install [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) then:
+
+    git clone https://www.github/codeforamerica/pdfhook.git
+    cd pdfhook
+    vagrant up
