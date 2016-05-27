@@ -70,12 +70,15 @@ docs/_build/
 # PyBuilder
 target/
 
-#Ipython Notebook
+# Ipython Notebook
 .ipynb_checkpoints
 
-#Databases
+# Databases
 *.db
 
 # Cloud Foundry
 cf-ssh.yml
 manifest.yml
+
+# Vagrant
+.vagrant/
