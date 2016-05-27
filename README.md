@@ -108,9 +108,8 @@ To deploy on Cloud Foundry:
     # make any changes to `manifest.yml`, if desired
     cf push -f manifest.yml
 
-To deploy via virtual machine on Windows or Mac:
+To deploy on Windows or Mac via virtual machine, install [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) then:
 
-    # Install Vagrant and VirtualBox
     git clone https://www.github/codeforamerica/pdfhook.git
     cd pdfhook
     vagrant up
