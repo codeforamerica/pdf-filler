@@ -1,7 +1,0 @@
-{
-  "name": "pdfhook",
-  "description": "A Python web application for converting PDF forms into PDF-filling APIs",
-  "repository": "https://github.com/codeforamerica/pdfhook",
-  "logo": "https://www.codeforamerica.org/assets/logo.png",
-  "keywords": ["pdf", "forms", "python", "flask"]
-}
