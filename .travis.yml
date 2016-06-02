@@ -1,0 +1,16 @@
+# Config file for automatic testing at travis-ci.org
+language: python
+sudo: required
+dist: trusty
+python:
+  - "3.4"
+  - "3.5"
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install pdftk -y
+install: make install
+script: make test
+after_success:
+  - coveralls
+notifications:
+  slack: sfbrigade:m5E9kgYDJ8cTE3P3TVymwH31

@@ -1,3 +1,11 @@
+
+# OS X
+.DS_Store
+
+# virtualenv
+pip-selfcheck.json
+pyvenv.cfg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -8,6 +16,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+bin/
 env/
 build/
 develop-eggs/
@@ -20,6 +29,7 @@ lib64/
 parts/
 sdist/
 var/
+man/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -35,6 +45,8 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+data/filled*
+data/tmp*
 htmlcov/
 .tox/
 .coverage
@@ -60,3 +72,13 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Databases
+*.db
+
+# Cloud Foundry
+cf-ssh.yml
+manifest.yml
+
+# Vagrant
+.vagrant/
